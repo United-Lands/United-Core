@@ -1,46 +1,20 @@
 masterwork-modifier:
-  tips: 0.05
-  middle: 0.1
+  tips: 0.075
+  middle: 0.125
 fortification-effects:
   1:
-    - HUNGER
-    - LUCK
-    - JUMP
+  - HUNGER
+  - LUCK
+  - JUMP
   2:
-    - SPEED
-    - SLOW
-    - INSTANT_DAMAGE
+  - SPEED
+  - SLOW
+  - INSTANT_DAMAGE
   3:
-    - POISON
-    - SLOW_DIGGING
-    - FAST_DIGGING
-    - ABSORPTION
-frenzy-whitelist:
-  - DIAMOND_ORE
-  - IRON_ORE
-  - GOLD_ORE
-  - LAPIS_ORE
-  - COAL_ORE
-  - COPPER_ORE
-  - REDSTONE_ORE
-  - EMERALD_ORE
-  - DEEPSLATE_DIAMOND_ORE
-  - DEEPSLATE_IRON_ORE
-  - DEEPSLATE_GOLD_ORE
-  - DEEPSLATE_LAPIS_ORE
-  - DEEPSLATE_COAL_ORE
-  - DEEPSLATE_COPPER_ORE
-  - DEEPSLATE_REDSTONE_ORE
-  - DEEPSLATE_EMERALD_ORE
-  - STONE
-  - GRANITE
-  - ANDESITE
-  - DIORITE
-  - DEEPSLATE
-  - DRIPSTONE_BLOCK
-  - CALCITE
-  - BASALT
-  - BLACKSTONE
+  - POISON
+  - SLOW_DIGGING
+  - FAST_DIGGING
+  - ABSORPTION
 brewing-items:
   - FERMENTED_SPIDER_EYE
   - RABBIT_FOOT
@@ -63,6 +37,7 @@ plant-foods:
   - DRIED_KELP
   - MELON_SLICE
   - CARROT
+  - GOLDEN_CARROT
   - POTATO
   - BAKED_POTATO
   - POISONOUS_POTATO
@@ -173,6 +148,7 @@ wrangler-mobs:
   - HORSE
   - SHEEP
   - AXOLOTL
+  - ALLAY
   - BAT
   - BEE
   - CAT
@@ -194,6 +170,9 @@ wrangler-mobs:
   - TRADER_LLAMA
   - TURTLE
   - WOLF
+  - FROG
+  - CAMEL
+  - SNIFFER
 trafficker-mobs:
   - BLAZE
   - CAVE_SPIDER
@@ -220,18 +199,6 @@ trafficker-mobs:
   - ZOGLIN
   - ZOMBIE
   - ZOMBIFIED_PIGLIN
-excavator-items:
-  - DIRT
-  - SAND
-  - GRAVEL
-  - SOUL_SAND
-  - SOUL_SOIL
-  - ROOTED_DIRT
-  - COARSE_DIRT
-  - GRASS_BLOCK
-  - RED_SAND
-  - MYCELIUM
-  - PODZOL
 archaeologist-loot:
   diamond:
     material: DIAMOND
@@ -514,77 +481,65 @@ archaeologist-loot:
       - MYCELIUM
 mineral-finder-loot:
   maronine:
-    material: PAPER
-    name: "&eMaronine Nugget"
+    ia: masterwork:maronine_nugget
     min: 1
     max: 1
     chance: 0.005
     required-level: 1
     level-modifier: 0.0
-    custom-model-data: 1
     blocks:
       - SOUL_SAND
       - SOUL_SOIL
   litnium:
-    material: PAPER
+    ia: masterwork:litnium_nugget
     chance: 0.005
     min: 1
-    max: 2
-    required-level: 2
-    custom-model-data: 2
-    name: "&eLitnium Nugget"
+    max: 1
+    required-level: 1
     level-modifier: 0.0
     blocks:
       - DIRT
       - ROOTED_DIRT
-      - GRASS
+      - GRASS_BLOCK
       - PODZOL
       - COARSE_DIRT
       - FARMLAND
   cinnarite:
-    material: GOLD_NUGGET
+    ia: masterwork:cinnarite_nugget
     chance: 0.005
     min: 1
     max: 1
-    required-level: 3
-    custom-model-data: 3
-    name: "&eCinnarite Nugget"
+    required-level: 1
     level-modifier: 0.0
     blocks:
       - SAND
       - RED_SAND
 rare-catch-loot:
   riverfish:
-    name: "&eRiverfish"
-    material: COD
-    chance: 0.05
+    ia: masterwork:riverfish
+    chance: 0.005
     min: 1
     max: 1
     required-level: 1
     level-modifier: 0.0
-    custom-model-data: 1
     biomes:
       - RIVER
   shimmerfish:
-    name: "&eShimmerfish"
-    material: COD
-    chance: 0.05
+    ia: masterwork:shimmerfish
+    chance: 0.005
     min: 1
     max: 1
-    required-level: 2
+    required-level: 1
     level-modifier: 0.0
-    custom-model-data: 2
     biomes:
       - WARM_OCEAN
   icefish:
-    name: "&eIcefish"
-    material: COD
-    chance: 0.05
+    ia: masterwork:icefish
+    chance: 0.005
     min: 1
     max: 1
-    required-level: 3
+    required-level: 1
     level-modifier: 0.0
-    custom-model-data: 3
     biomes:
       - FROZEN_OCEAN
       - FROZEN_RIVER
@@ -730,20 +685,18 @@ treasure-hunter-loot:
   disks:
     chance: 0.01
     materials:
-      - MUSIC_DISK_13
-      - MUSIC_DISK_CAT
-      - MUSIC_DISK_BLOCKS
-      - MUSIC_DISK_CHIRP
-      - MUSIC_DISK_FAR
-      - MUSIC_DISK_MALL
-      - MUSIC_DISK_MELLOHI
-      - MUSIC_DISK_STAL
-      - MUSIC_DISK_STRAD
-      - MUSIC_DISK_WARD
-      - MUSIC_DISK_11
-      - MUSIC_DISK_WAIT
-      - MUSIC_DISK_OTHERSIDE
-      - MUSIC_DISK_PIGSTEP
+      - MUSIC_DISC_13
+      - MUSIC_DISC_CAT
+      - MUSIC_DISC_BLOCKS
+      - MUSIC_DISC_CHIRP
+      - MUSIC_DISC_FAR
+      - MUSIC_DISC_MALL
+      - MUSIC_DISC_MELLOHI
+      - MUSIC_DISC_STAL
+      - MUSIC_DISC_STRAD
+      - MUSIC_DISC_WARD
+      - MUSIC_DISC_11
+      - MUSIC_DISC_WAIT
     min: 1
     max: 1
     required-level: 1
@@ -756,12 +709,11 @@ biome-kit:
     - NETHER_WASTES;NETHERRACK;#BD341D
     - WARPED_FOREST;WARPED_FUNGUS;#11869E
   overworld-biomes:
-    - BADLANDS;TERRACOTTA;#A9540D
     - BAMBOO_JUNGLE;BAMBOO;#4AA72A
+    - MANGROVE_SWAMP;MANGROVE_PROPAGULE;#748500
     - BEACH;SAND;#E4E191
     - BIRCH_FOREST;BIRCH_LOG;#DCDCCF
     - DARK_FOREST;DARK_OAK_LOG;#634005
-    - DEEP_OCEAN;WATER_BUCKET;#214A91
     - DESERT;SAND;#E4E191
     - DRIPSTONE_CAVES;POINTED_DRIPSTONE;#8A7D5A
     - FLOWER_FOREST;ROSE_BUSH;#C41111
@@ -783,11 +735,35 @@ biome-kit:
     - TAIGA;SPRUCE_LOG;#524225
     - WARM_OCEAN;TROPICAL_FISH_BUCKET;#52E9D2
     - WINDSWEPT_HILLS;STONE;#CCCCCC
+    - CHERRY_GROVE;CHERRY_SAPLING;#FFB7C5 
+frenzy-whitelist:
+  - DIAMOND_ORE
+  - IRON_ORE
+  - GOLD_ORE
+  - LAPIS_ORE
+  - COAL_ORE
+  - COPPER_ORE
+  - REDSTONE_ORE
+  - EMERALD_ORE
+  - DEEPSLATE_DIAMOND_ORE
+  - DEEPSLATE_IRON_ORE
+  - DEEPSLATE_GOLD_ORE
+  - DEEPSLATE_LAPIS_ORE
+  - DEEPSLATE_COAL_ORE
+  - DEEPSLATE_COPPER_ORE
+  - DEEPSLATE_REDSTONE_ORE
+  - DEEPSLATE_EMERALD_ORE
+  - STONE
+  - GRANITE
+  - ANDESITE
+  - DIROITE
+  - DEEPSLATE
+  - DRIPSTONE_BLOCK
+  - CALCITE
+  - BASALT
+  - BLACKSTONE
+
 messages:
   no-permission: "You do not have permission to execute this command!"
   must-be-hunter: "<red>You must be a hunter with the <yellow>Trafficker Skill<red> to use this safari net on this entity!"
   must-be-farmer: "<red>You must be a farmer with the <yellow>Wrangler Skill<red> to use this safari net on this entity!"
-  biome-selected: "<green>Biome successfully selected!"
-  biome-changed: "<green>Chunk biome successfully changed! <gray>You must leave the area to see changes!"
-  choose-biome-first: "<red>You must choose a biome first!"
-  points-available: "<bold><red>U<white>L </bold><dark_gray>»<red> You have <white><points><red> available!"

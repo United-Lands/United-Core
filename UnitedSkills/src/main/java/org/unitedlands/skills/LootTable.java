@@ -12,6 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.unitedlands.skills.skill.Skill;
 
+import dev.lone.itemsadder.api.CustomStack;
+
 import java.util.*;
 
 public class LootTable {
@@ -26,7 +28,8 @@ public class LootTable {
     }
 
     /**
-     * @return Returns a random item from the loot table if the chance is successful, null if otherwise
+     * @return Returns a random item from the loot table if the chance is
+     *         successful, null if otherwise
      */
     public ItemStack getRandomItem() {
         ConfigurationSection lootSection = unitedSkills.getConfig().getConfigurationSection(name);
@@ -53,7 +56,8 @@ public class LootTable {
         for (String itemID : itemIDS) {
             ConfigurationSection itemSection = lootSection.getConfigurationSection(itemID);
             assert itemSection != null;
-            @NotNull List<String> itemBiomes = itemSection.getStringList("biomes");
+            @NotNull
+            List<String> itemBiomes = itemSection.getStringList("biomes");
             if (!itemBiomes.contains(biome.name())) {
                 continue;
             }
@@ -64,9 +68,9 @@ public class LootTable {
         return null;
     }
 
-
     /**
-     * @param block The block which the item should be checked against. This is used for any loot tables which drop items from blocks.
+     * @param block The block which the item should be checked against. This is used
+     *              for any loot tables which drop items from blocks.
      * @return true if the item is dropped successfully
      */
     public ItemStack getRandomItem(Block block) {
@@ -98,19 +102,29 @@ public class LootTable {
     private ItemStack generateItem(ConfigurationSection itemSection) {
         int amount = getAmount(itemSection);
 
-        Material itemMaterial = Material.getMaterial(Objects.requireNonNull(itemSection.getString("material")));
-        if (!itemSection.getStringList("materials").isEmpty()) {
-            itemMaterial = getRandomMaterial(itemSection);
-        }
-        if (itemMaterial == null) {
-            return null;
-        }
-        ItemStack item = new ItemStack(itemMaterial, amount);
+        ItemStack item;
 
-        addName(itemSection, item);
-        addModelData(itemSection, item);
-        addLore(itemSection, item);
-        addDamage(itemSection, item);
+        // Is it a custom ItemsAdder item?
+        var ia = itemSection.getString("ia");
+
+        if (ia == null) {
+            // Generate a default ItemStack
+            Material itemMaterial = Material.getMaterial(Objects.requireNonNull(itemSection.getString("material")));
+            if (!itemSection.getStringList("materials").isEmpty()) {
+                itemMaterial = getRandomMaterial(itemSection);
+            }
+            if (itemMaterial == null) {
+                return null;
+            }
+            item = new ItemStack(itemMaterial);
+            addName(itemSection, item);
+            addLore(itemSection, item);
+            addDamage(itemSection, item);
+        } else {
+            // Generate ItemStack from ItemsAdder CustomStack
+            item = CustomStack.getInstance(ia).getItemStack();
+        }
+        item.setAmount(amount);
 
         return item;
     }
@@ -146,15 +160,6 @@ public class LootTable {
         ItemMeta meta = item.getItemMeta();
         meta.lore(deserializedLore);
         item.setItemMeta(meta);
-    }
-
-    private void addModelData(ConfigurationSection itemSection, ItemStack item) {
-        int customModelData = itemSection.getInt("custom-model-data");
-        if (customModelData != 0) {
-            ItemMeta meta = item.getItemMeta();
-            meta.setCustomModelData(customModelData);
-            item.setItemMeta(meta);
-        }
     }
 
     private void addName(ConfigurationSection itemSection, ItemStack item) {
