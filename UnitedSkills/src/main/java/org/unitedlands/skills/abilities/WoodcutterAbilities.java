@@ -47,7 +47,7 @@ public class WoodcutterAbilities implements Listener {
     @EventHandler
     public void onAxeInteract(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isWoodCutter()) {
+        if (!isWoodCutter()) {
             return;
         }
         ActiveSkill treeFeller = new ActiveSkill(player, SkillType.TREE_FELLER, cooldowns, durations);
@@ -59,8 +59,11 @@ public class WoodcutterAbilities implements Listener {
 
     @EventHandler
     public void onTreeFell(TreeFallEvent event) {
+
+        this.unitedSkills.getLogger().info("TreeFallEvent detected");
+
         player = event.getPlayer();
-        if (isWoodCutter()) {
+        if (!isWoodCutter()) {
             event.setCancelled(true);
             return;
         }
@@ -104,7 +107,7 @@ public class WoodcutterAbilities implements Listener {
     @EventHandler
     public void onPreciseCut(BlockBreakEvent event) {
         player = event.getPlayer();
-        if (isWoodCutter()) {
+        if (!isWoodCutter()) {
             return;
         }
         Skill precisionCutting = new Skill(player, SkillType.PRECISION_CUTTING);
@@ -125,7 +128,7 @@ public class WoodcutterAbilities implements Listener {
     }
 
     private boolean isWoodCutter() {
-        return !isInJob(player, "Woodcutter");
+        return isInJob(player, "Woodcutter");
     }
 
 }
