@@ -48,7 +48,7 @@ public class DiggerAbilities implements Listener {
     public void onMineralFinderBreak(BlockBreakEvent event) {
         player = event.getPlayer();
         if (event.isCancelled()) return;
-        if (isDigger()) {
+        if (!isDigger()) {
             return;
         }
         Skill mineralFinder = new Skill(player, SkillType.MINERAL_FINDER);
@@ -71,7 +71,7 @@ public class DiggerAbilities implements Listener {
     public void onArchaeologistBlockBreak(BlockBreakEvent event) {
         player = event.getPlayer();
         if (event.isCancelled()) return;
-        if (isDigger()) {
+        if (!isDigger()) {
             return;
         }
         Skill archaeologist = new Skill(player, SkillType.ARCHAEOLOGIST);
@@ -93,7 +93,7 @@ public class DiggerAbilities implements Listener {
     @EventHandler
     public void onBlockDrop(BlockDropItemEvent event) {
         player = event.getPlayer();
-        if (isDigger()) {
+        if (!isDigger()) {
             return;
         }
         Skill excavator = new Skill(player, SkillType.EXCAVATOR);
@@ -113,7 +113,7 @@ public class DiggerAbilities implements Listener {
     @EventHandler
     public void onTunnellerActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isDigger()) {
+        if (!isDigger()) {
             return;
         }
         ActiveSkill tunneller = new ActiveSkill(player, SkillType.TUNNELLER, cooldowns, durations);
@@ -125,7 +125,7 @@ public class DiggerAbilities implements Listener {
     @EventHandler
     public void onRefinerActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isDigger()) {
+        if (!isDigger()) {
             return;
         }
         ActiveSkill refiner = new ActiveSkill(player, SkillType.REFINER, cooldowns, durations);
@@ -137,7 +137,7 @@ public class DiggerAbilities implements Listener {
     @EventHandler
     public void onRefineBreak(BlockDropItemEvent event) {
         player = event.getPlayer();
-        if (isDigger()) {
+        if (!isDigger()) {
             return;
         }
         ActiveSkill refiner = new ActiveSkill(player, SkillType.REFINER, cooldowns, durations);
@@ -165,7 +165,7 @@ public class DiggerAbilities implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onTunnelBreak(BlockBreakEvent event) {
         player = event.getPlayer();
-        if (isDigger()) {
+        if (!isDigger()) {
             return;
         }
         if (event.isCancelled()) {
@@ -252,6 +252,6 @@ public class DiggerAbilities implements Listener {
     }
 
     private boolean isDigger() {
-        return !Utils.isInJob(player, "Digger");
+        return Utils.isInJob(player, "Digger");
     }
 }
