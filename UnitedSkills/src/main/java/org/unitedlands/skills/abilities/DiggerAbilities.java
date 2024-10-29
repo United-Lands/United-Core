@@ -198,30 +198,32 @@ public class DiggerAbilities implements Listener {
             }
             int xAdd = MINING_COORD_OFFSETS[i][0];
             int zAdd = MINING_COORD_OFFSETS[i][1];
-            Block blockAdd;
+
+            Block neighbourBlock;
             if (isY) {
-                blockAdd = block.getLocation().clone().add(isZ ? 0 : xAdd, zAdd, isZ ? xAdd : 0).getBlock();
+                neighbourBlock = block.getLocation().clone().add(isZ ? 0 : xAdd, zAdd, isZ ? xAdd : 0).getBlock();
             } else {
-                blockAdd = block.getLocation().clone().add(xAdd, 0, zAdd).getBlock();
+                neighbourBlock = block.getLocation().clone().add(xAdd, 0, zAdd).getBlock();
             }
             // Skip blocks that should not be mined
-            if (blockAdd.equals(block)) continue;
+            if (neighbourBlock.equals(block)) continue;
             // Skip any stuff that shovels wouldn't drop, and make sure the level is 1 (i.e. can't break stone)
-            if (blockAdd.getDrops(item).isEmpty()) continue;
-            if (blockAdd.isLiquid()) continue;
+            if (neighbourBlock.getDrops(item).isEmpty()) continue;
+            if (neighbourBlock.isLiquid()) continue;
 
-            Material addType = blockAdd.getType();
+            Material neighbourBlockType = neighbourBlock.getType();
 
             // Some extra block checks.
-            if (addType.isInteractable() && !(addType.equals(Material.REDSTONE_ORE)
-                    || addType.equals(Material.DEEPSLATE_REDSTONE_ORE))) continue;
-            if (addType == Material.BEDROCK || addType == Material.END_PORTAL || addType == Material.END_PORTAL_FRAME)
+            if (neighbourBlockType.isInteractable() && !(neighbourBlockType.equals(Material.REDSTONE_ORE)
+                    || neighbourBlockType.equals(Material.DEEPSLATE_REDSTONE_ORE))) continue;
+            if (neighbourBlockType == Material.BEDROCK || neighbourBlockType == Material.END_PORTAL || neighbourBlockType == Material.END_PORTAL_FRAME)
                 continue;
-            if (addType == Material.OBSIDIAN && addType != block.getType()) continue;
+            if (neighbourBlockType == Material.OBSIDIAN && neighbourBlockType != block.getType()) continue;
 
-            spawnBlockBreakParticles(blockAdd);
-            Jobs.action(Jobs.getPlayerManager().getJobsPlayer(player), new BlockActionInfo(block, ActionType.BREAK), block);
-            block.breakNaturally();
+            spawnBlockBreakParticles(neighbourBlock);
+
+            Jobs.action(Jobs.getPlayerManager().getJobsPlayer(player), new BlockActionInfo(neighbourBlock, ActionType.BREAK), neighbourBlock);
+            neighbourBlock.breakNaturally();
         }
     }
 
