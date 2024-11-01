@@ -60,8 +60,6 @@ public class WoodcutterAbilities implements Listener {
     @EventHandler
     public void onTreeFell(TreeFallEvent event) {
 
-        this.unitedSkills.getLogger().info("TreeFallEvent detected");
-
         player = event.getPlayer();
         if (!isWoodCutter()) {
             event.setCancelled(true);
