@@ -6,7 +6,7 @@
 
     <groupId>org.unitedlands</groupId>
     <artifactId>UnitedSkills</artifactId>
-    <version>3.5.1</version>
+    <version>3.5.2</version>
     <packaging>jar</packaging>
 
     <name>UnitedSkills</name>
@@ -104,6 +104,7 @@
             <groupId>com.craftaro.ultimatetimber</groupId>
             <artifactId>ultimate-timber</artifactId>
             <version>3.2.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.TownyAdvanced</groupId>
