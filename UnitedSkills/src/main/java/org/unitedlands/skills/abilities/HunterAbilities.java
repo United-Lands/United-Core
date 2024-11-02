@@ -153,7 +153,8 @@ public class HunterAbilities implements Listener {
                 return;
             }
             for (LivingEntity entity : bleedingEntities) {
-                boolean hasStoppedBleeding = ((bleedingDurations.get(entity) - System.currentTimeMillis()) / 1000L) <= 0;
+                boolean hasStoppedBleeding = ((bleedingDurations.get(entity) - System.currentTimeMillis())
+                        / 1000L) <= 0;
                 if (hasStoppedBleeding) {
                     bleedingEntities.remove(entity);
                     bleedingDurations.remove(entity);
@@ -321,7 +322,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         if (focus.isActive() && event.getForce() == 3F) {
-        Arrow arrow = (Arrow) event.getProjectile();
+            Arrow arrow = (Arrow) event.getProjectile();
             arrow.setMetadata("focused", new FixedMetadataValue(unitedSkills, true));
             spawnArrowTrail(arrow, Material.YELLOW_WOOL);
         }

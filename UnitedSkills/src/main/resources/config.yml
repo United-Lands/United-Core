@@ -1,6 +1,8 @@
 masterwork-modifier:
   tips: 0.075
   middle: 0.125
+pyrotechnic-modifier:
+  blast-strength: 0.2
 fortification-effects:
   1:
   - HUNGER
