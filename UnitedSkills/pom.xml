@@ -6,7 +6,7 @@
 
     <groupId>org.unitedlands</groupId>
     <artifactId>UnitedSkills</artifactId>
-    <version>3.5.3</version>
+    <version>3.5.3-SNAPSHOT-1</version>
     <packaging>jar</packaging>
 
     <name>UnitedSkills</name>

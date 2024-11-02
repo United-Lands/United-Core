@@ -61,7 +61,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = entity.getKiller();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         if (isSpawnerMob(entity)) {
@@ -90,7 +90,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = (Player) event.getEntity();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         Skill counterAttack = new Skill(player, SkillType.COUNTER_ATTACK);
@@ -127,7 +127,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = (Player) event.getDamager();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill precisionStrike = new ActiveSkill(player, SkillType.PRECISION_STRIKE, cooldowns, durations);
@@ -168,7 +168,7 @@ public class HunterAbilities implements Listener {
     @EventHandler
     public void onPrecisionStrikeActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill precisionStrike = new ActiveSkill(player, SkillType.PRECISION_STRIKE, cooldowns, durations);
@@ -181,7 +181,7 @@ public class HunterAbilities implements Listener {
     @EventHandler
     public void onFocusActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill focus = new ActiveSkill(player, SkillType.FOCUS, cooldowns, durations);
@@ -196,7 +196,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = shooter;
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         if (!(event.getEntity() instanceof Arrow arrow)) {
@@ -247,7 +247,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = shooter;
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         if (!(event.getEntity() instanceof Arrow arrow)) {
@@ -276,7 +276,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = damager;
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         Entity entity = event.getEntity();
@@ -313,21 +313,22 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = (Player) event.getEntity();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill focus = new ActiveSkill(player, SkillType.FOCUS, cooldowns, durations);
         if (focus.getLevel() == 0) {
             return;
         }
-        if (focus.isActive() && event.getForce() == 1F) {
-            Arrow arrow = (Arrow) event.getProjectile();
+        if (focus.isActive() && event.getForce() == 3F) {
+        Arrow arrow = (Arrow) event.getProjectile();
             arrow.setMetadata("focused", new FixedMetadataValue(unitedSkills, true));
             spawnArrowTrail(arrow, Material.YELLOW_WOOL);
         }
     }
 
     private void spawnArrowTrail(Arrow arrow, Material material) {
+        this.unitedSkills.getLogger().info("Spawning trail");
         ParticleBuilder particle = new ParticleBuilder(Particle.BLOCK_CRACK);
         BlockData blockData = material.createBlockData();
         Bukkit.getScheduler().runTaskTimer(unitedSkills, task -> {
@@ -338,6 +339,7 @@ public class HunterAbilities implements Listener {
                     .count(5)
                     .location(arrow.getLocation())
                     .spawn();
+            this.unitedSkills.getLogger().info("Trail task");
         }, 0, 1);
     }
 
@@ -361,6 +363,6 @@ public class HunterAbilities implements Listener {
     }
 
     private boolean isHunter() {
-        return !Utils.isInJob(player, "Hunter");
+        return Utils.isInJob(player, "Hunter");
     }
 }
