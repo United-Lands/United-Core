@@ -109,13 +109,20 @@ public class LootTable {
 
         if (ia == null) {
             // Generate a default ItemStack
-            Material itemMaterial = Material.getMaterial(Objects.requireNonNull(itemSection.getString("material")));
+            
+            Material itemMaterial; 
+
+            // If there is a list of random materials, pick one of them. If not, assert that there is just one material present.
             if (!itemSection.getStringList("materials").isEmpty()) {
                 itemMaterial = getRandomMaterial(itemSection);
+            } else {
+                itemMaterial = Material.getMaterial(Objects.requireNonNull(itemSection.getString("material")));
             }
+
             if (itemMaterial == null) {
                 return null;
             }
+
             item = new ItemStack(itemMaterial);
             addName(itemSection, item);
             addLore(itemSection, item);
