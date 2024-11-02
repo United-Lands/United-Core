@@ -328,7 +328,6 @@ public class HunterAbilities implements Listener {
     }
 
     private void spawnArrowTrail(Arrow arrow, Material material) {
-        this.unitedSkills.getLogger().info("Spawning trail");
         ParticleBuilder particle = new ParticleBuilder(Particle.BLOCK_CRACK);
         BlockData blockData = material.createBlockData();
         Bukkit.getScheduler().runTaskTimer(unitedSkills, task -> {
@@ -339,7 +338,6 @@ public class HunterAbilities implements Listener {
                     .count(5)
                     .location(arrow.getLocation())
                     .spawn();
-            this.unitedSkills.getLogger().info("Trail task");
         }, 0, 1);
     }
 
