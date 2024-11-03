@@ -61,7 +61,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = entity.getKiller();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         if (isSpawnerMob(entity)) {
@@ -90,7 +90,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = (Player) event.getEntity();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         Skill counterAttack = new Skill(player, SkillType.COUNTER_ATTACK);
@@ -127,7 +127,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = (Player) event.getDamager();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill precisionStrike = new ActiveSkill(player, SkillType.PRECISION_STRIKE, cooldowns, durations);
@@ -153,7 +153,8 @@ public class HunterAbilities implements Listener {
                 return;
             }
             for (LivingEntity entity : bleedingEntities) {
-                boolean hasStoppedBleeding = ((bleedingDurations.get(entity) - System.currentTimeMillis()) / 1000L) <= 0;
+                boolean hasStoppedBleeding = ((bleedingDurations.get(entity) - System.currentTimeMillis())
+                        / 1000L) <= 0;
                 if (hasStoppedBleeding) {
                     bleedingEntities.remove(entity);
                     bleedingDurations.remove(entity);
@@ -168,7 +169,7 @@ public class HunterAbilities implements Listener {
     @EventHandler
     public void onPrecisionStrikeActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill precisionStrike = new ActiveSkill(player, SkillType.PRECISION_STRIKE, cooldowns, durations);
@@ -181,7 +182,7 @@ public class HunterAbilities implements Listener {
     @EventHandler
     public void onFocusActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill focus = new ActiveSkill(player, SkillType.FOCUS, cooldowns, durations);
@@ -196,7 +197,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = shooter;
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         if (!(event.getEntity() instanceof Arrow arrow)) {
@@ -247,7 +248,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = shooter;
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         if (!(event.getEntity() instanceof Arrow arrow)) {
@@ -276,7 +277,7 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = damager;
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         Entity entity = event.getEntity();
@@ -313,14 +314,14 @@ public class HunterAbilities implements Listener {
             return;
         }
         player = (Player) event.getEntity();
-        if (isHunter()) {
+        if (!isHunter()) {
             return;
         }
         ActiveSkill focus = new ActiveSkill(player, SkillType.FOCUS, cooldowns, durations);
         if (focus.getLevel() == 0) {
             return;
         }
-        if (focus.isActive() && event.getForce() == 1F) {
+        if (focus.isActive() && event.getForce() == 3F) {
             Arrow arrow = (Arrow) event.getProjectile();
             arrow.setMetadata("focused", new FixedMetadataValue(unitedSkills, true));
             spawnArrowTrail(arrow, Material.YELLOW_WOOL);
@@ -361,6 +362,6 @@ public class HunterAbilities implements Listener {
     }
 
     private boolean isHunter() {
-        return !Utils.isInJob(player, "Hunter");
+        return Utils.isInJob(player, "Hunter");
     }
 }

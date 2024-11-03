@@ -34,7 +34,6 @@ import java.util.UUID;
 
 import static org.unitedlands.skills.Utils.canActivate;
 
-
 public class MinerAbilities implements Listener {
     private final UnitedSkills unitedSkills;
     private final HashMap<UUID, Long> cooldowns = new HashMap<>();
@@ -49,7 +48,7 @@ public class MinerAbilities implements Listener {
     @EventHandler
     public void onBlastMiningActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isMiner()) {
+        if (!isMiner()) {
             return;
         }
         ActiveSkill blastMining = new ActiveSkill(player, SkillType.BLAST_MINING, cooldowns, durations);
@@ -61,7 +60,7 @@ public class MinerAbilities implements Listener {
     @EventHandler
     public void onFrenzyActivate(PlayerInteractEvent event) {
         player = event.getPlayer();
-        if (isMiner()) {
+        if (!isMiner()) {
             return;
         }
         ActiveSkill frenzy = new ActiveSkill(player, SkillType.FRENZY, cooldowns, durations);
@@ -69,7 +68,8 @@ public class MinerAbilities implements Listener {
             if (frenzy.activate()) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, frenzy.getDuration() * 20, 3));
                 frenzyIsActive = true;
-                unitedSkills.getServer().getScheduler().runTaskLater(unitedSkills, () -> frenzyIsActive = false, frenzy.getDuration() * 20L);
+                unitedSkills.getServer().getScheduler().runTaskLater(unitedSkills, () -> frenzyIsActive = false,
+                        frenzy.getDuration() * 20L);
             }
         }
     }
@@ -77,7 +77,7 @@ public class MinerAbilities implements Listener {
     @EventHandler
     public void onBlockDrop(BlockDropItemEvent event) {
         player = event.getPlayer();
-        if (isMiner()) {
+        if (!isMiner()) {
             return;
         }
 
@@ -90,7 +90,8 @@ public class MinerAbilities implements Listener {
         String materialName = event.getBlockState().getType().toString();
         // Ores should not duplicate if the user has silk touch.
         ItemMeta meta = pickaxe.getItemMeta();
-        if (meta != null && meta.hasEnchant(Enchantment.SILK_TOUCH) && materialName.contains("ORE")) return;
+        if (meta != null && meta.hasEnchant(Enchantment.SILK_TOUCH) && materialName.contains("ORE"))
+            return;
 
         Skill fortunate = new Skill(player, SkillType.FORTUNATE);
         List<Item> items = event.getItems();
@@ -117,7 +118,7 @@ public class MinerAbilities implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         player = event.getPlayer();
-        if (isMiner()) {
+        if (!isMiner()) {
             return;
         }
         Block block = event.getBlock();
@@ -137,10 +138,10 @@ public class MinerAbilities implements Listener {
         ActiveSkill blastMining = new ActiveSkill(player, SkillType.BLAST_MINING, cooldowns, durations);
         if (blastMining.isActive()) {
             if (Utils.takeItemFromMaterial(player, Material.TNT)) {
-                block.getWorld().createExplosion(block.getLocation(), getPyrotechnicsPower(), false, true, player);
+                block.getLocation().createExplosion(player, getPyrotechnicsPower(), false, true);
                 damagePickaxe(mainHand, 10 + (blastMining.getLevel()) * 3);
             } else {
-                player.sendActionBar(Component.text("You must have tnt to use Blast Mining!", NamedTextColor.RED));
+                player.sendActionBar(Component.text("You must have TNT to use Blast Mining!", NamedTextColor.RED));
                 player.playSound(player, Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1, 1);
             }
         }
@@ -158,11 +159,13 @@ public class MinerAbilities implements Listener {
 
     @EventHandler
     public void onExplosionDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
+        if (!(event.getEntity() instanceof Player))
+            return;
         if (!(event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)
-                || event.getCause().equals(EntityDamageEvent.DamageCause.BLOCK_EXPLOSION))) return;
+                || event.getCause().equals(EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)))
+            return;
         player = (Player) event.getEntity();
-        if (isMiner()) {
+        if (!isMiner()) {
             return;
         }
         Skill shellShocked = new Skill(player, SkillType.SHELL_SHOCKED);
@@ -186,7 +189,7 @@ public class MinerAbilities implements Listener {
             return;
         }
         player = (Player) tnt.getSource();
-        if (isMiner()) {
+        if (!isMiner()) {
             return;
         }
         float power = getPyrotechnicsPower();
@@ -201,11 +204,11 @@ public class MinerAbilities implements Listener {
         if (level == 0) {
             return 4.0F;
         }
-        return (float) (4 + (4 * (level * 0.2)));
+        return (float) (4 + (4 * (level * unitedSkills.getConfig().getDouble("pyrotechnic-modifier.blast-strength", 0.2))));
     }
 
     private boolean isMiner() {
-        return !Utils.isInJob(player, "Miner");
+        return Utils.isInJob(player, "Miner");
     }
 
 }
