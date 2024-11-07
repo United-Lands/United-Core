@@ -779,5 +779,10 @@ frenzy-whitelist:
 
 messages:
   no-permission: "You do not have permission to execute this command!"
-  must-be-hunter: "<red>You must be a hunter with the <yellow>Trafficker Skill<red> to use this safari net on this entity!"
-  must-be-farmer: "<red>You must be a farmer with the <yellow>Wrangler Skill<red> to use this safari net on this entity!"
+  must-be-hunter: "<red>You must be a hunter to use this mob net!"
+  must-be-farmer: "<red>You must be a farmer to use this mob net!"
+  must-have-trafficker: "<red>You must have the <yellow>Trafficker Skill<red> to use this item!"
+  must-have-wrangler: "<red>You must have the <yellow>Wrangler Skill<red> to use this item!"
+  entity-not-in-list-trafficker: "<red>This mob is not on the list of allowed mobs for the <yellow>Trafficker Skill<red>!"
+  entity-not-in-list-wrangler: "<red>This mob is not on the list of allowed mobs for the <yellow>Wrangler Skill<red>!"
+  no-catch-permission: "<red>You don't have permission to catch mobs in other people's towns without trust!"

@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.unitedlands</groupId>
             <artifactId>UnitedSkills</artifactId>
-            <version>3.5.4-SNAPSHOT-1</version>
+            <version>3.6.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
