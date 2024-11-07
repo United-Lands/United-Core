@@ -59,6 +59,8 @@ public class MobNetAbilities implements Listener {
         if (!(event.getRightClicked() instanceof LivingEntity))
             return;
 
+        player = event.getPlayer();
+
         // Check if player has Towny permissions to catch mobs in the provided location
         var towny = TownyAPI.getInstance();
         if (towny != null) {
@@ -85,7 +87,6 @@ public class MobNetAbilities implements Listener {
             }
         }
 
-        player = event.getPlayer();
         var mob = (LivingEntity) event.getRightClicked();
 
         var itemInHand = player.getInventory().getItemInMainHand();
