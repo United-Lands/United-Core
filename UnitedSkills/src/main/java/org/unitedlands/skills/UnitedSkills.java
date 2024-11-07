@@ -1,6 +1,5 @@
 package org.unitedlands.skills;
 
-import de.Linus122.SafariNet.API.SafariNet;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
@@ -12,7 +11,6 @@ import org.unitedlands.skills.commands.UnitedSkillsCommand;
 import org.unitedlands.skills.guis.BiomeKit;
 import org.unitedlands.skills.hooks.UnitedSkillsPlaceholders;
 import org.unitedlands.skills.points.JobsListener;
-import org.unitedlands.skills.safarinets.SafariNetListener;
 import org.unitedlands.skills.skill.SkillFile;
 
 import java.util.Objects;
@@ -46,11 +44,10 @@ public final class UnitedSkills extends JavaPlugin {
                 new MinerAbilities(this),
                 new BiomeKit(this),
                 new MasterworkListener(this),
+                new MobNetAbilities(this)
         };
 
         registerEvents(listeners);
-
-        SafariNet.addListener(new SafariNetListener(this));
 
         final HunterAbilities hunterAbilities = new HunterAbilities(this);
         hunterAbilities.damageBleedingEntities();
