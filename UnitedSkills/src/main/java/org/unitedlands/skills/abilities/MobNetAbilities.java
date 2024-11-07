@@ -14,6 +14,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -44,7 +45,7 @@ public class MobNetAbilities implements Listener {
         this.unitedSkills = unitedSkills;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onCatchMob(PlayerInteractEntityEvent event) {
 
         if (event.isCancelled())
@@ -226,7 +227,7 @@ public class MobNetAbilities implements Listener {
         return fullCaptureItem;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onReleaseMob(PlayerInteractEvent event) {
 
         // PlayerInteractEvent is fired twice by the game, once for HAND and once
