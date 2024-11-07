@@ -69,11 +69,11 @@ public class MiscListener implements Listener {
             return;
 
         Player player = event.getPlayer();
-        to.getWorld().spawnEntity(to, EntityType.LIGHTNING);
+        to.getWorld().spawnEntity(to, EntityType.LIGHTNING_BOLT);
 
         player.playSound(to, Sound.ITEM_TRIDENT_THUNDER, 1f, 1f);
         player.playSound(to, Sound.BLOCK_END_PORTAL_SPAWN, 1f, 1f);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 200, 1));
         player.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 200, 1));
         Vector vector = to.toVector().subtract(event.getFrom().toVector()).add(new Vector(0, 30, 0));
         player.setVelocity(vector.multiply(-10));
