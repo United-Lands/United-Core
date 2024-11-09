@@ -4,6 +4,9 @@ import com.destroystokyo.paper.ParticleBuilder;
 import com.gamingmesh.jobs.Jobs;
 import com.gamingmesh.jobs.actions.BlockActionInfo;
 import com.gamingmesh.jobs.container.ActionType;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.TownyPermission;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import com.craftaro.ultimatetimber.UltimateTimber;
 import com.craftaro.ultimatetimber.events.TreeFallEvent;
 import com.craftaro.ultimatetimber.manager.SaplingManager;
@@ -31,7 +34,6 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import static org.unitedlands.skills.Utils.*;
-
 
 public class WoodcutterAbilities implements Listener {
 
@@ -76,7 +78,8 @@ public class WoodcutterAbilities implements Listener {
                 break;
             }
             Block block = treeBlock.getBlock();
-            Jobs.action(Jobs.getPlayerManager().getJobsPlayer(player), new BlockActionInfo(block, ActionType.BREAK), block);
+            Jobs.action(Jobs.getPlayerManager().getJobsPlayer(player), new BlockActionInfo(block, ActionType.BREAK),
+                    block);
             counter++;
         }
         Skill reforestation = new Skill(player, SkillType.REFORESTATION);
@@ -88,9 +91,11 @@ public class WoodcutterAbilities implements Listener {
             DetectedTree tree = event.getDetectedTree();
             Bukkit.getScheduler().runTask(unitedSkills, () -> {
                 try {
-                    Method internalReplant = saplingManager.getClass().getDeclaredMethod("internalReplant", TreeDefinition.class, ITreeBlock.class);
+                    Method internalReplant = saplingManager.getClass().getDeclaredMethod("internalReplant",
+                            TreeDefinition.class, ITreeBlock.class);
                     internalReplant.setAccessible(true);
-                    internalReplant.invoke(saplingManager, tree.getTreeDefinition(), tree.getDetectedTreeBlocks().getInitialLogBlock());
+                    internalReplant.invoke(saplingManager, tree.getTreeDefinition(),
+                            tree.getDetectedTreeBlocks().getInitialLogBlock());
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     throw new RuntimeException(e);
                 }
@@ -116,6 +121,13 @@ public class WoodcutterAbilities implements Listener {
         if (isPlaced(event.getBlock())) {
             return;
         }
+
+        // Perform towny check to see if player is allowed to break blocks in that location
+        if (!PlayerCacheUtil.getCachePermission(player, event.getBlock().getLocation(), event.getBlock().getType(),
+                TownyPermission.ActionType.DESTROY)) {
+            return;
+        }
+
         if (precisionCutting.isSuccessful()) {
             multiplyItem(player, new ItemStack(material), 2);
         }
