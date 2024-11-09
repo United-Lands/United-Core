@@ -227,17 +227,23 @@ public class HunterAbilities implements Listener {
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
-        Bukkit.getScheduler().runTask(unitedSkills, () -> {
-            if (event.getEntity().hasMetadata("retrieved")) {
-                Arrow arrow = (Arrow) event.getEntity();
-                if (arrow.getShooter() instanceof Player shooter) {
-                    Skill retriever = new Skill(player, SkillType.RETRIEVER);
-                    retriever.sendActivationActionBar();
-                    shooter.getInventory().addItem(arrow.getItemStack().asOne());
+
+        // Only retrieve arrows that hit entities to avoid duplication by spam shooting blocks.
+        var hitEntity = event.getHitEntity();
+        if (hitEntity != null && hitEntity instanceof LivingEntity) {
+            Bukkit.getScheduler().runTask(unitedSkills, () -> {
+                if (event.getEntity().hasMetadata("retrieved")) {
+                    Arrow arrow = (Arrow) event.getEntity();
+                    if (arrow.getShooter() instanceof Player shooter) {
+                        Skill retriever = new Skill(player, SkillType.RETRIEVER);
+                        retriever.sendActivationActionBar();
+                        shooter.getInventory().addItem(arrow.getItemStack().asOne());
+                    }
+                    event.getEntity().remove();
                 }
-                event.getEntity().remove();
-            }
-        });
+            });
+        }
+
         if (!(event.getEntity().getShooter() instanceof Player shooter)) {
             return;
         }
