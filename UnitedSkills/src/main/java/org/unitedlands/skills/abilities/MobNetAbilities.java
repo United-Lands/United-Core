@@ -60,6 +60,10 @@ public class MobNetAbilities implements Listener {
         if (!(event.getRightClicked() instanceof LivingEntity))
             return;
 
+        // Don't consider players for catching -_-
+        if (event.getRightClicked() instanceof Player)
+            return;
+
         player = event.getPlayer();
 
         // Check if player has Towny permissions to catch mobs in the provided location
