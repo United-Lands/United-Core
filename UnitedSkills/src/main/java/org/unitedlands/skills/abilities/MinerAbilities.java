@@ -133,16 +133,16 @@ public class MinerAbilities implements Listener {
             ActiveSkill frenzy = new ActiveSkill(player, SkillType.FRENZY, cooldowns, durations);
             event.setExpToDrop(event.getExpToDrop() * (frenzy.getLevel() + 2));
             return;
-        }
-
-        ActiveSkill blastMining = new ActiveSkill(player, SkillType.BLAST_MINING, cooldowns, durations);
-        if (blastMining.isActive()) {
-            if (Utils.takeItemFromMaterial(player, Material.TNT)) {
-                block.getLocation().createExplosion(player, getPyrotechnicsPower(), false, true);
-                damagePickaxe(mainHand, 10 + (blastMining.getLevel()) * 3);
-            } else {
-                player.sendActionBar(Component.text("You must have TNT to use Blast Mining!", NamedTextColor.RED));
-                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1, 1);
+        } else {
+            ActiveSkill blastMining = new ActiveSkill(player, SkillType.BLAST_MINING, cooldowns, durations);
+            if (blastMining.isActive()) {
+                if (Utils.takeItemFromMaterial(player, Material.TNT)) {
+                    block.getLocation().createExplosion(player, getPyrotechnicsPower(), false, true);
+                    damagePickaxe(mainHand, 10 + (blastMining.getLevel()) * 3);
+                } else {
+                    player.sendActionBar(Component.text("You must have TNT to use Blast Mining!", NamedTextColor.RED));
+                    player.playSound(player, Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1, 1);
+                }
             }
         }
     }
@@ -204,7 +204,8 @@ public class MinerAbilities implements Listener {
         if (level == 0) {
             return 4.0F;
         }
-        return (float) (4 + (4 * (level * unitedSkills.getConfig().getDouble("pyrotechnic-modifier.blast-strength", 0.2))));
+        return (float) (4
+                + (4 * (level * unitedSkills.getConfig().getDouble("pyrotechnic-modifier.blast-strength", 0.2))));
     }
 
     private boolean isMiner() {
