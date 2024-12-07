@@ -1,32 +1,22 @@
 package org.unitedlands.skills.abilities;
 
-import com.destroystokyo.paper.ParticleBuilder;
 import com.gamingmesh.jobs.container.blockOwnerShip.BlockOwnerShip;
 import com.gamingmesh.jobs.container.blockOwnerShip.BlockTypes;
-import dev.lone.itemsadder.api.CustomStack;
-import dev.triumphteam.gui.guis.Gui;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
-import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -37,15 +27,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.unitedlands.skills.UnitedSkills;
 import org.unitedlands.skills.Utils;
-import org.unitedlands.skills.guis.BlendingGui;
-import org.unitedlands.skills.skill.ActiveSkill;
 import org.unitedlands.skills.skill.Skill;
 import org.unitedlands.skills.skill.SkillType;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -54,85 +40,10 @@ import static org.unitedlands.skills.Utils.*;
 
 public class BrewerAbilities implements Listener {
     private final UnitedSkills unitedSkills;
-    private final HashMap<UUID, Long> cooldowns = new HashMap<>();
-    private final HashMap<UUID, Long> durations = new HashMap<>();
     private Player player;
 
     public BrewerAbilities(UnitedSkills unitedSkills) {
         this.unitedSkills = unitedSkills;
-    }
-
-    @EventHandler
-    public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
-        if (!(event.getEntity().getShooter() instanceof Player)) {
-            return;
-        }
-        player = (Player) event.getEntity().getShooter();
-        if (isBrewer()) {
-            return;
-        }
-        Skill splashBoost = new Skill(player, SkillType.SPLASH_BOOST);
-        if (splashBoost.getLevel() == 0) {
-            return;
-        }
-        AreaEffectCloud cloud = event.getAreaEffectCloud();
-        cloud.setRadius((float) (cloud.getRadius() * (1 + (splashBoost.getLevel() * 0.1))));
-        ActiveSkill fortification = new ActiveSkill(player, SkillType.FORTIFICATION, cooldowns, durations);
-        if (fortification.isActive()) {
-            PotionData basePotionData = cloud.getBasePotionData();
-            PotionMeta potionMeta = event.getEntity().getPotionMeta();
-            PotionEffect amplifiedEffect = null;
-            if (basePotionData.getType().getEffectType() != null) {
-                amplifiedEffect = basePotionData.getType().getEffectType().createEffect(getPotionDuration(basePotionData), getAmplifier(potionMeta));
-            }
-            if (amplifiedEffect != null) {
-                cloud.addCustomEffect(amplifiedEffect, true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onExpandedPotionSplash(PotionSplashEvent event) {
-        if (!(event.getEntity().getShooter() instanceof Player)) {
-            return;
-        }
-        player = (Player) event.getEntity().getShooter();
-        if (isBrewer()) {
-            return;
-        }
-        Skill splashBoost = new Skill(player, SkillType.SPLASH_BOOST);
-        if (splashBoost.getLevel() == 0) {
-            return;
-        }
-        ParticleBuilder particle = new ParticleBuilder(Particle.CAMPFIRE_COSY_SMOKE);
-        particle.count(splashBoost.getLevel() * 2);
-        particle.force();
-        particle.location(event.getEntity().getLocation());
-
-        float radius = (float) (4.25 * (1 + (splashBoost.getLevel() * 0.1)));
-        PotionMeta potionMeta = event.getPotion().getPotionMeta();
-        PotionData potionData = potionMeta.getBasePotionData();
-
-        int baseDuration = getPotionDuration(potionData);
-        int baseAmplifier = getAmplifier(potionMeta);
-
-        Location potionLocation = event.getPotion().getLocation();
-        potionLocation.getNearbyLivingEntities(radius, radius, radius).forEach(entity -> {
-            double distance = getDistance(potionLocation, entity.getLocation());
-            int duration = (int) (baseDuration - (baseDuration * (distance * 0.1)));
-            int amplifier = (int) Math.round((baseAmplifier - (baseAmplifier * (distance * 0.1))));
-            if (potionData.getType().getEffectType() == null) {
-                if (potionMeta.hasCustomEffects()) {
-                    potionMeta.getCustomEffects().forEach(effect -> entity.addPotionEffect(new PotionEffect(effect.getType(), duration, baseAmplifier)));
-                    particle.spawn();
-                    return;
-                }
-                return;
-            }
-            PotionEffect potionEffect = new PotionEffect(potionData.getType().getEffectType(), duration, amplifier);
-            entity.addPotionEffect(potionEffect);
-        });
-        particle.spawn();
     }
 
     @EventHandler
@@ -158,18 +69,6 @@ public class BrewerAbilities implements Listener {
             event.setCancelled(true);
         }
 
-    }
-
-    @EventHandler
-    public void onFortificationActivate(PlayerInteractEvent event) {
-        player = event.getPlayer();
-        if (isBrewer()) {
-            return;
-        }
-        ActiveSkill fortification = new ActiveSkill(player, SkillType.FORTIFICATION, cooldowns, durations);
-        if (canActivate(event, "POTION", fortification)) {
-            fortification.activate();
-        }
     }
 
     @EventHandler
@@ -199,32 +98,6 @@ public class BrewerAbilities implements Listener {
                 player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 2f, 1f);
                 event.setCancelled(true);
             }
-        }
-
-        ActiveSkill fortification = new ActiveSkill(player, SkillType.FORTIFICATION, cooldowns, durations);
-        if (fortification.isActive()) {
-            if (potionMeta.hasCustomEffects()) {
-                potionMeta.getCustomEffects().forEach(effect -> {
-                    if (!canFortify(potionMeta)) {
-                        return;
-                    }
-                    PotionEffect potionEffect = new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier() + 1);
-                    player.addPotionEffect(potionEffect);
-                });
-            } else {
-                if (potionType.getEffectType() == null) {
-                    return;
-                }
-                if (!canFortify(potionMeta)) {
-                    return;
-                }
-                PotionEffect potionEffect = new PotionEffect(potionType.getEffectType(), getPotionDuration(potionData), getAmplifier(potionMeta));
-                player.addPotionEffect(potionEffect);
-            }
-
-            event.setCancelled(true);
-            player.getInventory().remove(item);
-            player.getInventory().addItem(new ItemStack(Material.GLASS_BOTTLE));
         }
     }
 
@@ -292,37 +165,6 @@ public class BrewerAbilities implements Listener {
         }, 2);
     }
 
-    @EventHandler
-    public void onMilkPotionDrink(PlayerItemConsumeEvent event) {
-        ItemStack item = event.getItem();
-        if (isMilkPotion(item, "milk_potion")) {
-            Player player = event.getPlayer();
-            removeAllEffects(player);
-        }
-    }
-
-    @EventHandler
-    public void onMilkPotionSplash(PotionSplashEvent event) {
-        ItemStack item = event.getPotion().getItem();
-        if (isMilkPotion(item, "splash_milk_potion")) {
-            for (Entity entity : event.getPotion().getNearbyEntities(2, 2, 2)) {
-                if (entity instanceof LivingEntity livingEntity) {
-                    removeAllEffects(livingEntity);
-                }
-            }
-        }
-    }
-
-    private boolean isMilkPotion(ItemStack item, String milkPotionName) {
-        return CustomStack.getInstance("unitedlands:" + milkPotionName).getItemStack().equals(item);
-    }
-
-    private void removeAllEffects(LivingEntity entity) {
-        for (PotionEffect effect : entity.getActivePotionEffects()) {
-            entity.removePotionEffect(effect.getType());
-        }
-    }
-
     private boolean canStartBrewing(BrewingStand brewingStand) {
         if (hasBottleOrPotion(brewingStand.getInventory())) return false;
         if (hasBrewingItem(brewingStand.getInventory())) return false;
@@ -341,7 +183,7 @@ public class BrewerAbilities implements Listener {
         return false;
     }
 
-    private boolean hasBrewingItem(Inventory inventory) {
+    private boolean hasBrewingItem(@NotNull Inventory inventory) {
         FileConfiguration config = unitedSkills.getConfig();
         @NotNull List<String> brewingItems = config.getStringList("brewing-items");
         ItemStack item = inventory.getItem(3);
@@ -362,6 +204,7 @@ public class BrewerAbilities implements Listener {
         return blazePowderSlot.getType().equals(Material.BLAZE_POWDER);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private Player getBrewingStandOwner(Block block) {
         if (block.hasMetadata("jobsBrewingOwner")) {
             BlockOwnerShip blockOwner = getJobs().getBlockOwnerShip(BlockTypes.BREWING_STAND).orElse(null);
@@ -390,27 +233,6 @@ public class BrewerAbilities implements Listener {
             return uuid.equals(player.getUniqueId().toString());
         }
         return false;
-    }
-
-    @EventHandler
-    public void onBrewingStandOpen(InventoryOpenEvent event) {
-        player = (Player) event.getPlayer();
-        if (!event.getInventory().getType().equals(InventoryType.BREWING)) {
-            return;
-        }
-        if (isBrewer()) {
-            return;
-        }
-        if (player.isSneaking()) {
-            event.setCancelled(true);
-            if (!player.hasPermission("united.skills.blend.1")) {
-                player.sendMessage(getMessage("no-permission"));
-                return;
-            }
-            BlendingGui blendingGui = new BlendingGui(unitedSkills);
-            Gui gui = blendingGui.createGui(player);
-            gui.open(player);
-        }
     }
 
     @EventHandler
@@ -478,74 +300,9 @@ public class BrewerAbilities implements Listener {
         player.setHealth(Math.min(20, health + healthModifier * skillLevel * 2));
     }
 
-    private boolean canFortify(PotionMeta potionMeta) {
-        ActiveSkill fortification = new ActiveSkill(player, SkillType.FORTIFICATION, cooldowns, durations);
-        if (fortification.getLevel() == 0) {
-            return false;
-        }
-        if (!fortification.isActive()) {
-            return false;
-        }
-        FileConfiguration config = unitedSkills.getConfig();
-        List<String> fortifyList = config.getStringList("fortification-effects.1");
-        if (fortification.getLevel() == 3) {
-            fortifyList.addAll(config.getStringList("fortification-effects.3"));
-            fortifyList.addAll(config.getStringList("fortification-effects.2"));
-        }
-        if (fortification.getLevel() == 2) {
-            fortifyList.addAll(config.getStringList("fortification-effects.2"));
-        }
-        if (potionMeta.hasCustomEffects()) {
-            for (PotionEffect effect : potionMeta.getCustomEffects()) {
-                if (fortifyList.contains(effect.getType().getName())) {
-                    return true;
-                }
-            }
-        }
-        @Nullable PotionEffectType effect = potionMeta.getBasePotionData().getType().getEffectType();
-        if (effect == null) {
-            return false;
-        }
-        return fortifyList.contains(effect.getName());
-    }
-
     private boolean isHarmfulEffect(PotionEffect effect) {
         @NotNull List<String> harmfulPotions = unitedSkills.getConfig().getStringList("harmful-potions");
         return harmfulPotions.contains(effect.getType().getName());
-    }
-
-    private int getAmplifier(PotionMeta potionMeta) {
-        PotionData potionData = potionMeta.getBasePotionData();
-        int amplifier = 0;
-        if (potionData.isUpgraded()) {
-            String typeName = potionData.getType().toString();
-            FileConfiguration config = unitedSkills.getConfig();
-            amplifier = config.getInt("potions." + typeName + ".max_amplifier");
-        }
-        Skill fortification = new Skill(player, SkillType.FORTIFICATION);
-        if (fortification.getLevel() > 0) {
-            if (canFortify(potionMeta)) {
-                amplifier += 1;
-            }
-        }
-        return amplifier;
-    }
-
-    private double getDistance(Location loc1, Location loc2) {
-        return Math.sqrt(Math.pow(loc1.getX() - loc2.getX(), 2) + Math.pow(loc1.getY() - loc2.getY(), 2) + Math.pow(loc1.getZ() - loc2.getZ(), 2));
-    }
-
-    private int getPotionDuration(PotionData potionData) {
-        String typeName = potionData.getType().toString();
-        FileConfiguration config = unitedSkills.getConfig();
-        int duration = config.getInt("potions." + typeName + ".default");
-
-        if (potionData.isUpgraded()) {
-            duration = config.getInt("potions." + typeName + ".upgraded");
-        } else if (potionData.isExtended()) {
-            duration = config.getInt("potions." + typeName + ".extended");
-        }
-        return duration * 20;
     }
 
     private boolean isBrewer() {
