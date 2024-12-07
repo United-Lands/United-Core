@@ -204,6 +204,7 @@ public class BrewerAbilities implements Listener {
         return blazePowderSlot.getType().equals(Material.BLAZE_POWDER);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private Player getBrewingStandOwner(Block block) {
         if (block.hasMetadata("jobsBrewingOwner")) {
             BlockOwnerShip blockOwner = getJobs().getBlockOwnerShip(BlockTypes.BREWING_STAND).orElse(null);

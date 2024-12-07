@@ -22,30 +22,7 @@ skills:
       points: 2
     3:
       points: 3
-  blend:
-    1:
-      points: 1
-    2:
-      points: 2
-    3:
-      points: 4
-  new-potions:
-    1:
-      points: 1
-    2:
-      points: 2
-    3:
-      points: 3
-  splash-boost:
-    1:
-      points: 1
-    2:
-      points: 2
-    3:
-      points: 3
-  oil-extraction:
-    1:
-      points: 5
+
   # Farmer
   expert-harvester:
     1:
@@ -82,9 +59,7 @@ skills:
       points: 2
     2:
       points: 3
-  ancient-oak:
-    1:
-      points: 5
+
   # Miner
   fortunate:
     1:
@@ -110,10 +85,8 @@ skills:
       points: 2
     3:
       points: 3
-  armor-smith:
-    1:
-      points: 7
   # Hunter
+
   self-reflection:
     1:
       chance: 10
@@ -179,11 +152,8 @@ skills:
     3:
       chance: 15
       points: 3
-  leatherworking:
-    1:
-      chance: 5
-      points: 4
   # Fisherman
+
   lucky-catch:
     1:
       chance: 20
@@ -222,6 +192,7 @@ skills:
     1:
       points: 5
   # Woodcutter
+
   reforestation:
     1:
       chance: 35
@@ -242,16 +213,7 @@ skills:
     3:
       chance: 40
       points: 3
-  carpenter:
-    1:
-      points: 2
-    2:
-      points: 3
-    3:
-      points: 4
-  expert-whittling:
-    1:
-      points: 5
+
   # Digger
   excavator:
     1:
@@ -270,19 +232,10 @@ skills:
       points: 3
     3:
       points: 4
-  compactor:
-    1:
-      points: 1
-    2:
-      points: 2
-    3:
-      points: 3
   mineral-finder:
     1:
       points: 5
-  biome-kit:
-    1:
-      points:
+
   # Active skills start
   green-thumb:
     1:
@@ -316,22 +269,6 @@ skills:
       cooldown: 240
       duration: 20
       points: 5
-  fortification:
-    1:
-      chance: 100
-      cooldown: 300
-      duration: 10
-      points: 1
-    2:
-      chance: 100
-      cooldown: 270
-      duration: 20
-      points: 2
-    3:
-      chance: 100
-      cooldown: 240
-      duration: 30
-      points: 3
   blast-mining:
     1:
       chance: 100
