@@ -7,7 +7,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.unitedlands.skills.abilities.*;
 import org.unitedlands.skills.commands.PointsCommand;
 import org.unitedlands.skills.commands.UnitedSkillsCommand;
-import org.unitedlands.skills.guis.BiomeKit;
 import org.unitedlands.skills.hooks.UnitedSkillsPlaceholders;
 import org.unitedlands.skills.points.JobsListener;
 import org.unitedlands.skills.skill.SkillFile;
@@ -40,7 +39,6 @@ public final class UnitedSkills extends JavaPlugin {
                 new WoodcutterAbilities(this),
                 new FishermanAbilities(this),
                 new MinerAbilities(this),
-                new BiomeKit(this),
                 new MasterworkListener(this),
                 new MobNetAbilities(this)
         };
