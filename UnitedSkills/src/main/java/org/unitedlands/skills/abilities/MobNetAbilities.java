@@ -66,32 +66,6 @@ public class MobNetAbilities implements Listener {
 
         player = event.getPlayer();
 
-        // Check if player has Towny permissions to catch mobs in the provided location
-        var towny = TownyAPI.getInstance();
-        if (towny != null) {
-            var location = event.getRightClicked().getLocation();
-
-            // Catching in the wilderness is allowed by default, only perform checks when in
-            // a town.
-            if (!towny.isWilderness(location)) {
-                var town = towny.getTown(location);
-                var resident = TownyAPI.getInstance().getResident(player);
-                if (town != null && resident != null) {
-                    // Only check further in non-ruined towns
-                    if (!town.isRuined()) {
-                        // If player is not in their own town, check the trust list
-                        if (!resident.hasTown() || (resident.hasTown() && !resident.getTownOrNull().equals(town))) {
-                            var trustList = town.getTrustedResidents();
-                            if (!trustList.contains(resident)) {
-                                player.sendMessage(Utils.getMessage("no-catch-permission-town"));
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         var mob = (LivingEntity) event.getRightClicked();
 
         var itemInHand = player.getInventory().getItemInMainHand();
@@ -120,6 +94,32 @@ public class MobNetAbilities implements Listener {
         if (isPassiveMobNet && !isFarmer()) {
             player.sendMessage(Utils.getMessage("must-be-farmer"));
             return;
+        }
+
+        // Check if player has Towny permissions to catch mobs in the provided location
+        var towny = TownyAPI.getInstance();
+        if (towny != null) {
+            var location = event.getRightClicked().getLocation();
+
+            // Catching in the wilderness is allowed by default, only perform checks when in
+            // a town.
+            if (!towny.isWilderness(location)) {
+                var town = towny.getTown(location);
+                var resident = TownyAPI.getInstance().getResident(player);
+                if (town != null && resident != null) {
+                    // Only check further in non-ruined towns
+                    if (!town.isRuined()) {
+                        // If player is not in their own town, check the trust list
+                        if (!resident.hasTown() || (resident.hasTown() && !resident.getTownOrNull().equals(town))) {
+                            var trustList = town.getTrustedResidents();
+                            if (!trustList.contains(resident)) {
+                                player.sendMessage(Utils.getMessage("no-catch-permission-town"));
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if (isHostileMobNet && isHunter()) {
