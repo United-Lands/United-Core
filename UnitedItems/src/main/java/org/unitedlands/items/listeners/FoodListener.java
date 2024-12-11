@@ -44,7 +44,6 @@ public class FoodListener implements Listener {
         if (!item.isSimilar(hotPepper))
             return; // The item is not a hot pepper, return and end the code here.
         Player player = event.getPlayer();
-        player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 5 * 20, 1));
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 1));
         player.setFireTicks(2 * 20);
 
