@@ -30,9 +30,9 @@ public class CustomArmour implements Listener {
     }
 
     @EventHandler
-// Starts a check for custom armour if a player interacts with their armour slots.
+    // Starts a check for custom armour if a player interacts with their armour slots.
     public void onInventoryClick(InventoryClickEvent event) {
-        // Check if the interaction is with an armor slot, hotbar, or involves shift-clicking
+        // Check if the interaction is with an armour slot, hotbar, or involves shift-clicking
         if (event.getSlotType() == InventoryType.SlotType.ARMOR ||
                 event.getSlotType() == InventoryType.SlotType.QUICKBAR ||
                 event.isShiftClick()) {
@@ -75,11 +75,24 @@ public class CustomArmour implements Listener {
     // Checks if the player is flagged as wearing custom armour and applies relevant effects.
     private void checkAndApplyEffect(Player player) {
         if (isWearingNutcrackerArmour(player)) {
-            if (!player.hasPotionEffect(PotionEffectType.SPEED)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true, false));
+            PotionEffect[] effects = {
+                    new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 1, true, false),
+                    new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true, false),
+                    new PotionEffect(PotionEffectType.HASTE, Integer.MAX_VALUE, 0, true, false),
+                    new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 0, true, false),
+            };
+            // Apply each effect if the player is missing one.
+            for (PotionEffect effect : effects) {
+                if (!player.hasPotionEffect(effect.getType())) {
+                    player.addPotionEffect(effect);
+                }
             }
         } else {
+            // Remove effects when not wearing custom armor
+            player.removePotionEffect(PotionEffectType.STRENGTH);
             player.removePotionEffect(PotionEffectType.SPEED);
+            player.removePotionEffect(PotionEffectType.HASTE);
+            player.removePotionEffect(PotionEffectType.REGENERATION);
         }
     }
 
