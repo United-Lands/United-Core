@@ -135,6 +135,8 @@ public class MinerAbilities implements Listener {
             return;
         } else {
             ActiveSkill blastMining = new ActiveSkill(player, SkillType.BLAST_MINING, cooldowns, durations);
+            if (blastMining.getLevel() == 0)
+                return;
             if (blastMining.isActive()) {
                 if (Utils.takeItemFromMaterial(player, Material.TNT)) {
                     block.getLocation().createExplosion(player, getPyrotechnicsPower(), false, true);
