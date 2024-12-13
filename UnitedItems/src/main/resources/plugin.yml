@@ -3,7 +3,7 @@ version: '${project.version}'
 main: org.unitedlands.items.UnitedItems
 api-version: 1.17
 authors: [ Maroon28 ]
-contributors: [ Litning11, Theriel_ ]
+contributors: [ Litning11 ]
 depend: [NBTAPI, Towny, ItemsAdder]
 commands:
   tree:
