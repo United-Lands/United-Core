@@ -48,6 +48,7 @@ messages:
 
 # Feedback messages for players.
   prefix: '<red><bold>U<white>L</bold></white> Chat <dark_grey><bold>» '
+  only-players: '<red>Only players can run this command!'
   chat-cleared: '<red>Global chat Cleared.'
   gradient-changed: '<green>Gradient changed.'
   gradient-on: '<green>Gradient enabled.'
