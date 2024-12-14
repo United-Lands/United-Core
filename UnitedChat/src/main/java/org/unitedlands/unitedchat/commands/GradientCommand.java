@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import org.unitedlands.unitedchat.UnitedChat;
 import org.unitedlands.unitedchat.player.ChatPlayer;
 
+import java.util.Objects;
+
 import static org.unitedlands.unitedchat.UnitedChat.getMessage;
 
 public class GradientCommand implements CommandExecutor {
@@ -19,21 +21,21 @@ public class GradientCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-
+        // Check if player has permission.
         if (!(sender instanceof Player)) {
             return false;
         }
         this.player = (Player) sender;
 
         if (!player.hasPermission("united.chat.gradient")) {
-            player.sendMessage(getMessage("no-perm"));
+            player.sendMessage(getMessage("message.no-perm"));
             return false;
         }
 
         chatPlayer = new ChatPlayer(player.getUniqueId());
 
         if (args.length != 1) {
-            player.sendMessage(getMessage("gradient-command"));
+            player.sendMessage(getMessage("message.gradient-command"));
             return true;
         }
 
@@ -48,7 +50,7 @@ public class GradientCommand implements CommandExecutor {
     }
 
     private void setGradient(String arg) {
-        if (getPresetSection().contains(arg)) {
+        if (Objects.requireNonNull(getPresetSection()).contains(arg)) {
             setGradientPreset(arg);
             return;
         }
@@ -63,7 +65,7 @@ public class GradientCommand implements CommandExecutor {
     }
 
     private void setGradientPreset(String presetName) {
-        if (getPresetSection().getString(presetName) == null) {
+        if (Objects.requireNonNull(getPresetSection()).getString(presetName) == null) {
             player.sendMessage(getMessage("gradient-unknown-preset"));
             return;
         }
@@ -102,6 +104,7 @@ public class GradientCommand implements CommandExecutor {
     }
 
     @Nullable
+    // Select proper gradient preset.
     private ConfigurationSection getPresetSection() {
         return UnitedChat.getPlugin().getConfig().getConfigurationSection("Presets");
     }

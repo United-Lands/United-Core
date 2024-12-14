@@ -2,7 +2,6 @@ package org.unitedlands.unitedchat.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.unitedlands.unitedchat.UnitedChat;
 
-import java.io.File;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ChatPlayer {
@@ -22,7 +21,7 @@ public class ChatPlayer {
 
     public String getGradient() {
         Player player = getPlayer();
-        PersistentDataContainer pdc = getPDC(player);
+        PersistentDataContainer pdc = getPDC(Objects.requireNonNull(player));
         if (!pdc.has(getKey("gradient"))) {
             return null;
         }
@@ -31,12 +30,12 @@ public class ChatPlayer {
 
     public void setGradient(String gradient) {
         Player player = getPlayer();
-        player.getPersistentDataContainer().set(getKey("gradient"), PersistentDataType.STRING, gradient);
+        Objects.requireNonNull(player).getPersistentDataContainer().set(getKey("gradient"), PersistentDataType.STRING, gradient);
     }
 
     public boolean isGradientEnabled() {
         Player player = getPlayer();
-        PersistentDataContainer pdc = getPDC(player);
+        PersistentDataContainer pdc = getPDC(Objects.requireNonNull(player));
         if (getGradient() == null) {
             return false;
         }
@@ -61,19 +60,17 @@ public class ChatPlayer {
 
     @NotNull
     private static PersistentDataContainer getPDC(Player player) {
-        PersistentDataContainer pdc = player.getPersistentDataContainer();
-        return pdc;
+        return player.getPersistentDataContainer();
     }
 
     @Nullable
     private Player getPlayer() {
-        Player player = Bukkit.getPlayer(uuid);
-        return player;
+        return Bukkit.getPlayer(uuid);
     }
 
     public void setGradientEnabled(boolean toggle) {
         Player player = getPlayer();
-        player.getPersistentDataContainer().set(getKey("gradient-enabled"), PersistentDataType.STRING, toggle + "");
+        Objects.requireNonNull(player).getPersistentDataContainer().set(getKey("gradient-enabled"), PersistentDataType.STRING, toggle + "");
     }
 
 
