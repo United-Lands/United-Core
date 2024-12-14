@@ -36,32 +36,32 @@ public class PlayerListener implements Listener {
 
     }
 
- //   @EventHandler
- //   public void onChat(AsyncChatHookEvent event) {
- //       Player player = event.getPlayer();
+    //   @EventHandler
+    //   public void onChat(AsyncChatHookEvent event) {
+    //       Player player = event.getPlayer();
 //
- //       if (!player.hasPermission("united.chat.gradient")) {
- //           return;
- //       }
+    //       if (!player.hasPermission("united.chat.gradient")) {
+    //           return;
+    //       }
 //
- //       if (!event.getChannel().getName().equals("general")) {
- //           return;
- //       }
+    //       if (!event.getChannel().getName().equals("general")) {
+    //           return;
+    //       }
 //
- //       ChatPlayer chatPlayer = new ChatPlayer(player.getUniqueId());
- //       String message = event.getMessage();
- //       message = message.replace("§f", ""); // looks like there's a random color here for some reason that needs to be removed
- //       String finalizedMessage = formatter.finalizeMessage(player, message);
+    //       ChatPlayer chatPlayer = new ChatPlayer(player.getUniqueId());
+    //       String message = event.getMessage();
+    //       message = message.replace("§f", ""); // looks like there's a random color here for some reason that needs to be removed
+    //       String finalizedMessage = formatter.finalizeMessage(player, message);
 //
- //       if (chatPlayer.getPlayerConfig() == null) {
- //           chatPlayer.createPlayerFile();
- //       }
+    //       if (chatPlayer.getPlayerConfig() == null) {
+    //           chatPlayer.createPlayerFile();
+    //       }
 //
- //       if (chatPlayer.isGradientEnabled()) {
- //           event.setMessage(formatter.gradientMessage(finalizedMessage, chatPlayer.getGradient()));
- //           return;
- //       }
- //       event.setMessage(formatter.colorMessage(finalizedMessage));
- //   }
+    //       if (chatPlayer.isGradientEnabled()) {
+    //           event.setMessage(formatter.gradientMessage(finalizedMessage, chatPlayer.getGradient()));
+    //           return;
+    //       }
+    //       event.setMessage(formatter.colorMessage(finalizedMessage));
+    //   }
 
 }

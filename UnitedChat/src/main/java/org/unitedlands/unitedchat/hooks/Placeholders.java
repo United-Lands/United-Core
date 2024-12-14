@@ -73,10 +73,12 @@ public class Placeholders extends PlaceholderExpansion implements Relational {
             return false;
         PersistentDataContainer pdc = player.getPlayer().getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(UnitedChat.getPlugin(), feature.toString());
-        // features are on by default, which means it wasn't ever toggled before if there is no key.
-        if (!pdc.has(key))
+        // Features are on by default, which means it wasn't ever toggled before if there is no key.
+        if (!pdc.has(key, PersistentDataType.INTEGER)) {
             return true;
-        return pdc.get(key, PersistentDataType.INTEGER) == 1;
+        }
+        // Null pointer handler. 
+        Integer value = pdc.get(key, PersistentDataType.INTEGER);
+        return value != null && value == 1;
     }
-
 }
