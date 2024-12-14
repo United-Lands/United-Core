@@ -32,8 +32,6 @@ public class CustomItem {
             meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&fNULL"));
         }
         if(glow) {
-            meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
-            item.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         List<String> tempLore = new ArrayList<String>();

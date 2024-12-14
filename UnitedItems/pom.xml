@@ -6,7 +6,7 @@
 
     <groupId>org.unitedlands</groupId>
     <artifactId>UnitedItems</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.1</version>
     <packaging>jar</packaging>
 
     <name>UnitedItems</name>
@@ -81,12 +81,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.unitedlands</groupId>
             <artifactId>UnitedSkills</artifactId>
             <version>3.6.5</version>
@@ -108,6 +102,12 @@
             <groupId>com.github.TownyAdvanced</groupId>
             <artifactId>Towny</artifactId>
             <version>0.97.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
