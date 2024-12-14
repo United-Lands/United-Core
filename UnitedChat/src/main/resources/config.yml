@@ -1,5 +1,18 @@
+################
+##            ##
+## UnitedChat ##
+##            ##
+################
+
+#############
+# Gradients #
+#############
+
+# This section handles gradient-chat related settings.
+
+# Define pre-set gradients to use.
 Presets:
-  # #hex1:#hex2:#hex3....
+  # Format: "#hex1:#hex2:#hex3:#..."
   rainbow: "#e07870:#e0aa70:#e3de84:#a3e391:#8de0c1:#8fd2e3:#938de0:#c491e3"
   dragonfruit: "#ff2c2c:#ff005d:#ff008f:#ff2dc3:#ff57f5"
   jshine: "#12c2e9:#c471ed:#f64f59"
@@ -10,7 +23,16 @@ Presets:
   wiretap: "#8A2387:#E94057:#F27121"
   magic: "#59C173:#a17fe0:#5D26C1"
   redsunset: "#355C7D:#6C5B7B:#C06C84"
+
+#############
+# Gradients #
+#############
+
+# This section has editable language configurations for plugin messages.
+
 messages:
+
+# Message-of-the-day, the message people see when they log in.
   motd:
     - '<gradient:#ffffff:#ff5555>------------------------------</gradient>'
     - '                     <red><bold>UNITED<white><bold>LANDS     '
@@ -23,18 +45,20 @@ messages:
     - '             <red>Welcome to <red><bold>United<white><bold>Lands <yellow><italic>%player_name%&c!'
     - '    <red>There are currently <white>%server_online% <red>players online.'
     - '<gradient:#ffffff:#ff5555>------------------------------</gradient>'
+
+# Feedback messages for players.
   prefix: '<red><bold>U<white>L</bold></white> Chat <dark_grey><bold>» '
-  chat-cleared: '<red>Global Chat Cleared.'
+  chat-cleared: '<red>Global chat Cleared.'
   gradient-changed: '<green>Gradient changed.'
   gradient-on: '<green>Gradient enabled.'
   gradient-command: '<yellow>Use /gradient [toggle] | [preset] | [hexcolor1] [hexcolor2] %player_name%'
   gradient-admin-command: '<yellow>Use /gradient [toggle] | [preset] | [hexcolor1] [hexcolor] |[player]'
   gradient-off: '<red>Gradient disabled.'
-  gradient-unknown-preset: '<red>Preset not recognized.'
+  gradient-unknown-preset: '<red>Preset not recognised.'
   gradient-is-off: '<red>Your gradient is disabled.'
   gradient-is-on: '<red>Your gradient is enabled.'
   current-gradient: '<red>Your current gradient is: <gradient>'
-  no-perm: '<red>You don''t have permission.'
+  no-perm: '<red>You don''t have permission to do this.'
   chat-toggle-command: '<yellow>Use /chat [Chat Feature] on/off'
   toggled-feature: '<green><feature> successfully set to <toggle>!'
   invalid-feature: '<red>Invalid argument! Please pick: prefixes, ranks, broadcasts, games'

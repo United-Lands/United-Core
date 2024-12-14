@@ -1,8 +1,9 @@
 name: UnitedChat
-version: '1.0'
+version: '${project.version}'
 main: org.unitedlands.unitedchat.UnitedChat
 api-version: 1.19
 authors: [ Maroon28 ]
+contributors: [ Litning11]
 depend: [ Towny ]
 softdepend: [PlaceholderAPI]
 commands:
