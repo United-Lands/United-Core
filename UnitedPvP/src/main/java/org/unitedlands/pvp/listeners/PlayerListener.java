@@ -130,13 +130,6 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerExplosionDamage(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Player && event.getDamager() instanceof EnderCrystal) {
-            event.setDamage(event.getDamage() * 0.1);
-        }
-    }
-
-    @EventHandler
     public void onPlayerKillPlayer(PlayerKilledPlayerEvent event) {
         Player killer = event.getKiller();
         Player victim = event.getVictim();
