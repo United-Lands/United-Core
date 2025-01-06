@@ -34,9 +34,6 @@ public class Placeholders extends PlaceholderExpansion {
             PvpPlayer pvpPlayer = new PvpPlayer((Player) player);
             if (params.equalsIgnoreCase("status")) {
                 int hostility = pvpPlayer.getHostility();
-                if (hostility <= Status.AGGRESSIVE.getStartingValue()) {
-                    return "";
-                }
                 return pvpPlayer.getIconHex(hostility) + pvpPlayer.getStatus().getIcon();
             } else if (params.equalsIgnoreCase("status-string")) {
                 return String.valueOf(pvpPlayer.getStatus());

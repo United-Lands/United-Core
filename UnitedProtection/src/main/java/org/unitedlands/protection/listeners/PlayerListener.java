@@ -12,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -27,7 +28,7 @@ public class PlayerListener implements Listener {
         this.unitedProtection = unitedProtection;
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent event) {
         this.player = event.getPlayer();
         Block block = event.getBlock();
@@ -38,7 +39,7 @@ public class PlayerListener implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         this.player = event.getPlayer();
         Block block = event.getBlock();

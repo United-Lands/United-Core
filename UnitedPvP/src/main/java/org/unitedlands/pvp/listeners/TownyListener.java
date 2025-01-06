@@ -3,8 +3,8 @@ package org.unitedlands.pvp.listeners;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyUniverse;
 import com.palmergames.bukkit.towny.event.NewDayEvent;
-import com.palmergames.bukkit.towny.event.PlayerEnterTownEvent;
 import com.palmergames.bukkit.towny.event.nation.toggle.NationToggleNeutralEvent;
+import com.palmergames.bukkit.towny.event.player.PlayerEntersIntoTownBorderEvent;
 import com.palmergames.bukkit.towny.event.town.toggle.TownToggleNeutralEvent;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -147,10 +147,10 @@ public class TownyListener implements Listener {
     }
 
     @EventHandler
-    public void onTownEnter(PlayerEnterTownEvent event) {
+    public void onTownEnter(PlayerEntersIntoTownBorderEvent event) {
         player = event.getPlayer();
         Resident outlaw = towny.getResident(player);
-        Town town = event.getEnteredtown();
+        Town town = event.getEnteredTown();
 
         if (town.hasOutlaw(outlaw)) {
             player.showTitle(getOutlawWarningTitle(town));
