@@ -8,7 +8,7 @@ import com.palmergames.bukkit.towny.object.Town;
 import de.jeff_media.angelchest.AngelChest;
 import de.jeff_media.angelchest.events.AngelChestSpawnEvent;
 import net.kyori.adventure.text.TextReplacementConfig;
-import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
