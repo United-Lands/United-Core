@@ -37,7 +37,7 @@ import java.util.List;
 public class TownyListener implements Listener {
     private final TownyAPI towny = TownyAPI.getInstance();
     private final UnitedPvP unitedPvP;
-    Player player;
+
     public TownyListener(UnitedPvP unitedPvP) {
         this.unitedPvP = unitedPvP;
     }
@@ -45,7 +45,7 @@ public class TownyListener implements Listener {
 
     @EventHandler
     public void onLeaderJoin(PlayerJoinEvent event) {
-        this.player = event.getPlayer();
+        var player = event.getPlayer();
         Resident resident = towny.getResident(player);
         if (!resident.hasTown())
             return;
@@ -56,12 +56,12 @@ public class TownyListener implements Listener {
         if (resident.isMayor()) {
             List<String> hostilePlayers = getHostileResidents(resident.getTownOrNull().getResidents());
             if (!hostilePlayers.isEmpty())
-                sendListedMessage("cannot-be-neutral", "<players>", hostilePlayers);
+                sendListedMessage(player, "cannot-be-neutral", "<players>", hostilePlayers);
         }
         if (resident.isKing()) {
             List<String> hostileTowns = getHostileTowns(resident.getNationOrNull());
             if (!hostileTowns.isEmpty())
-                sendListedMessage("cannot-be-neutral-nation", "<towns>", hostileTowns);
+                sendListedMessage(player, "cannot-be-neutral-nation", "<towns>", hostileTowns);
         }
     }
 
@@ -89,15 +89,15 @@ public class TownyListener implements Listener {
 
         event.setCancelled(true);
         event.getTown().setNeutral(false);
-        sendListedMessage("cannot-be-neutral", "<players>", hostileResidents);
+        sendListedMessage(event.getPlayer(), "cannot-be-neutral", "<players>", hostileResidents);
     }
 
-    private void sendListedMessage(String message, String pattern, List<String> list) {
+    private void sendListedMessage(Player player, String message, String pattern, List<String> list) {
         TextReplacementConfig playerReplacer = TextReplacementConfig
                 .builder()
                 .match(pattern)
                 // Join all found hostile residents in the list.
-                .replacement(String.join("<light_gray>,<yellow> ", list))
+                .replacement(String.join("§7,§e ", list))
                 .build();
         player.sendMessage(Utils.getMessage(message).replaceText(playerReplacer));
     }
@@ -131,7 +131,7 @@ public class TownyListener implements Listener {
         List<String> hostileTowns = getHostileTowns(nation);
         if (hostileTowns.isEmpty())
             return;
-        sendListedMessage("cannot-be-neutral-nation", "<towns>", hostileTowns);
+        sendListedMessage(event.getPlayer(), "cannot-be-neutral-nation", "<towns>", hostileTowns);
         nation.setNeutral(false);
         event.setCancelled(true);
     }
@@ -148,7 +148,7 @@ public class TownyListener implements Listener {
 
     @EventHandler
     public void onTownEnter(PlayerEntersIntoTownBorderEvent event) {
-        player = event.getPlayer();
+        var player = event.getPlayer();
         Resident outlaw = towny.getResident(player);
         Town town = event.getEnteredTown();
 
@@ -157,11 +157,11 @@ public class TownyListener implements Listener {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 0.4F);
             BossBar outlawedBossbar = getOutlawedBossbar(town);
             player.showBossBar(outlawedBossbar);
-            startBossbarCountdown(outlawedBossbar, 15);
+            startBossbarCountdown(player, outlawedBossbar, 15);
         }
     }
 
-    private void startBossbarCountdown(BossBar bossBar, int seconds) {
+    private void startBossbarCountdown(Player player, BossBar bossBar, int seconds) {
         double timeDecrease =  (double) 1 / seconds;
         unitedPvP.getServer().getScheduler().runTaskTimer(unitedPvP, task -> {
             if (bossBar.progress() <= 0.0) {
