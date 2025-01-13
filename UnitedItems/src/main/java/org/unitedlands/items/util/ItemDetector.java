@@ -1,5 +1,6 @@
 package org.unitedlands.items.util;
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -161,17 +162,23 @@ public class ItemDetector implements Listener {
     }
 
     @EventHandler
+    // Handle armour changes using.
+    public void onPlayerArmorChange(PlayerArmorChangeEvent event) {
+        Player player = event.getPlayer();
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
+    }
+
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         // Apply or remove effects when a player joins.
         applyEffectsIfWearingArmor(event.getPlayer());
     }
 
     @EventHandler
-    // Check if armour has been moved when interacting with the inventory.
+    // Check if tools has been moved when interacting with the inventory.
     public void onInventoryClick(InventoryClickEvent event) {
         Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> {
             if (event.getWhoClicked() instanceof Player player) {
-                applyEffectsIfWearingArmor(player);
                 applyEffectsIfHoldingTool(player);
             }
         });
