@@ -14,6 +14,7 @@ import org.unitedlands.items.sapling.FungalSapling;
 import org.unitedlands.items.sapling.MangoSapling;
 import org.unitedlands.items.sapling.PineSapling;
 import org.unitedlands.items.trees.Tree;
+import org.unitedlands.items.util.ItemDetector;
 import org.unitedlands.items.util.SerializableData;
 
 import java.io.File;
@@ -24,9 +25,10 @@ public class UnitedItems extends JavaPlugin {
     public void onEnable() {
 
         this.getCommand("tree").setExecutor(new TreeCmd());
-        getServer().getPluginManager().registerEvents(new CustomArmour(this), this);
         getServer().getPluginManager().registerEvents(new FoodListener(this),this);
         getServer().getPluginManager().registerEvents(new Tree(this),this);
+        ItemDetector itemDetector = new ItemDetector(); // Create the detector
+        getServer().getPluginManager().registerEvents(new ItemDetector(), this);
         saveDefaultConfig();
 
         new AncientOak();
