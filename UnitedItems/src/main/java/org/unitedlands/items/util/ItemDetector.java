@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -18,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.CustomArmour;
 import org.unitedlands.items.armours.Nutcracker;
+import org.unitedlands.items.tools.AmethystPickaxe;
 import org.unitedlands.items.tools.CustomTool;
 import org.unitedlands.items.tools.Gamemaster;
 
@@ -35,7 +37,8 @@ public class ItemDetector implements Listener {
         toolSets = new HashMap<>();
         armourSets.put("nutcracker", new Nutcracker());
         toolSets.put("gamemaster", new Gamemaster());
-        // Add more sets here...
+        toolSets.put("amethyst", new AmethystPickaxe());
+        // Add more sets and tools here...
     }
 
     // Detect if the player is wearing a full set of a registered armour.
@@ -58,14 +61,14 @@ public class ItemDetector implements Listener {
 
     // Check if all pieces of the set match the given setId.
     private boolean isFullSet(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots, String setId) {
-        return isCustomArmorPiece(helmet, setId) &&
-                isCustomArmorPiece(chestplate, setId) &&
-                isCustomArmorPiece(leggings, setId) &&
-                isCustomArmorPiece(boots, setId);
+        return isCustomArmourPiece(helmet, setId) &&
+                isCustomArmourPiece(chestplate, setId) &&
+                isCustomArmourPiece(leggings, setId) &&
+                isCustomArmourPiece(boots, setId);
     }
 
     // Check if an individual armour piece matches the setId.
-    private boolean isCustomArmorPiece(ItemStack item, String setId) {
+    private boolean isCustomArmourPiece(ItemStack item, String setId) {
         if (item == null || item.getType() == Material.AIR) {
             return false;
         }
@@ -158,6 +161,17 @@ public class ItemDetector implements Listener {
                     }
                 }
             });
+        }
+    }
+
+    @EventHandler
+    // Check block breaks for use of custom tools.
+    public void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        CustomTool tool = detectTool(player);
+        // Delegate the block breaking logic to the specific tool.
+        if (tool != null) {
+            tool.handleBlockBreak(player, event);
         }
     }
 

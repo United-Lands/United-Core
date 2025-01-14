@@ -1,6 +1,7 @@
 package org.unitedlands.items.tools;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -17,5 +18,9 @@ public class Gamemaster extends CustomTool {
     public List<PotionEffectType> getAppliedEffects() {
         // Return the effects applied by this tool
         return Collections.singletonList(PotionEffectType.LUCK);
+    }
+
+    @Override
+    public void handleBlockBreak(Player player, BlockBreakEvent event) {
     }
 }
