@@ -8,8 +8,11 @@ import java.util.List;
 public abstract class CustomArmour {
 
     // Apply effects to the player
-    public abstract void applyEffects(Player player);
+    public void applyEffects(Player player) {
+    }
 
     // Get the list of potion effects applied by this armor
-    public abstract List<PotionEffectType> getAppliedEffects();
+    public List<PotionEffectType> getAppliedEffects() {
+        return null;
+    }
 }

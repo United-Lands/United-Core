@@ -28,8 +28,7 @@ public class UnitedItems extends JavaPlugin {
         this.getCommand("tree").setExecutor(new TreeCmd());
         getServer().getPluginManager().registerEvents(new FoodListener(this),this);
         getServer().getPluginManager().registerEvents(new Tree(this),this);
-        ItemDetector itemDetector = new ItemDetector();
-        getServer().getPluginManager().registerEvents(new ItemDetector(), this);
+        getServer().getPluginManager().registerEvents(new ItemDetector(this), this);
         getServer().getPluginManager().registerEvents(new AmethystPickaxe(), this);
         saveDefaultConfig();
 

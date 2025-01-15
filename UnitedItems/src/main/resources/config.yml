@@ -3,3 +3,12 @@ Items:
   InvalidTree: "Tree does not exist!"
 Global:
   NoPerm: "You don't have permission to run this command!"
+
+############
+# Language #
+############
+
+# This section has editable language configurations for plugin messages.
+
+messages:
+  tool-broken: "§c§lU§f§lL §7§lItems §8§l» §cThis tool is broken and needs repair to continue using it."

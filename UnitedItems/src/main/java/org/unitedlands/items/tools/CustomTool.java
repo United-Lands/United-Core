@@ -1,18 +1,33 @@
 package org.unitedlands.items.tools;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.event.block.BlockBreakEvent;
 
+import java.util.Collections;
 import java.util.List;
 
 public abstract class CustomTool {
     // Apply effects to the player
-    public abstract void applyEffects(Player player);
+    public void applyEffects(Player player) {
+    }
 
     // Get the list of potion effects applied by this tool
-    public abstract List<PotionEffectType> getAppliedEffects();
+    public List<PotionEffectType> getAppliedEffects() {
+        return Collections.emptyList();
+    }
 
     // Handle block break logic for the tool
-    public abstract void handleBlockBreak(Player player, BlockBreakEvent event);
+    public void handleBlockBreak(Player player, BlockBreakEvent event) {
+    }
+
+    // Handle interaction logic for the tool
+    public void handleInteract(Player player, PlayerInteractEvent event) {
+    }
+
+    // Handle damage logic for the tool.
+    public void handleEntityDamage(Player player, EntityDamageByEntityEvent event) {
+    }
 }

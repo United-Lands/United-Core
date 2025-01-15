@@ -4,18 +4,22 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.CustomArmour;
 import org.unitedlands.items.armours.Nutcracker;
@@ -32,11 +36,12 @@ public class ItemDetector implements Listener {
     private final Map<String, CustomArmour> armourSets;
     private final Map<String, CustomTool> toolSets;
 
-    public ItemDetector() {
+    public ItemDetector(Plugin plugin) {
+        FileConfiguration config = plugin.getConfig();
         armourSets = new HashMap<>();
         toolSets = new HashMap<>();
         armourSets.put("nutcracker", new Nutcracker());
-        toolSets.put("gamemaster", new Gamemaster());
+        toolSets.put("gamemaster", new Gamemaster(plugin, config));
         toolSets.put("amethyst", new AmethystPickaxe());
         // Add more sets and tools here...
     }
@@ -172,6 +177,29 @@ public class ItemDetector implements Listener {
         // Delegate the block breaking logic to the specific tool.
         if (tool != null) {
             tool.handleBlockBreak(player, event);
+        }
+    }
+
+    @EventHandler
+    // Check block interactions for use of custom tools.
+    public void handleInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        CustomTool tool = detectTool(player);
+        if (tool != null) {
+            // Delegate the interaction logic to the tool's handleInteract method
+            tool.handleInteract(player, event);
+        }
+    }
+
+    @EventHandler
+    // Check entity damage for use of custom tools.
+    public void handleEntityDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
+            CustomTool tool = detectTool(player);
+            // Delegate to the damage logic to the spcific tool.
+            if (tool != null) {
+                tool.handleEntityDamage(player, event);
+            }
         }
     }
 
