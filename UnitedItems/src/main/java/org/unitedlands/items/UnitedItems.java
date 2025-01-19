@@ -15,7 +15,6 @@ import org.unitedlands.items.sapling.MangoSapling;
 import org.unitedlands.items.sapling.PineSapling;
 import org.unitedlands.items.trees.Tree;
 import org.unitedlands.items.util.ItemDetector;
-import org.unitedlands.items.tools.AmethystPickaxe;
 import org.unitedlands.items.util.SerializableData;
 
 import java.io.File;
@@ -29,7 +28,6 @@ public class UnitedItems extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FoodListener(this),this);
         getServer().getPluginManager().registerEvents(new Tree(this),this);
         getServer().getPluginManager().registerEvents(new ItemDetector(this), this);
-        getServer().getPluginManager().registerEvents(new AmethystPickaxe(), this);
         saveDefaultConfig();
 
         new AncientOak();

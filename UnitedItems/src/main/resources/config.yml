@@ -12,3 +12,4 @@ Global:
 
 messages:
   tool-broken: "§c§lU§f§lL §7§lItems §8§l» §cThis tool is broken and needs repair to continue using it."
+  armour-broken: "§c§lU§f§lL §7§lItems §8§l» §cThis armour is broken and you will take double damage until it is repaired."

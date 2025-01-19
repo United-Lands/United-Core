@@ -16,15 +16,16 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Gamemaster extends CustomTool {
+public class GamemasterTools extends CustomTool {
 
     private final Plugin plugin;
     private final String toolBrokenMessage;
     private final Map<Player, Long> messageCooldowns;
 
-    public Gamemaster(Plugin plugin, FileConfiguration config) {
+    public GamemasterTools(Plugin plugin, FileConfiguration config) {
         this.plugin = plugin;
         this.toolBrokenMessage = config.getString("messages.tool-broken");
         this.messageCooldowns = new HashMap<>();
@@ -44,7 +45,6 @@ public class Gamemaster extends CustomTool {
         PersistentDataContainer container = meta.getPersistentDataContainer();
         NamespacedKey brokenKey = new NamespacedKey(plugin, "broken");
 
-        // Use ItemsAdder API to get current durability
         CustomStack customStack = CustomStack.byItemStack(item);
         if (customStack == null) {
             return;

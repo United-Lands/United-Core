@@ -1,10 +1,12 @@
 package org.unitedlands.items.util;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,10 +24,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.CustomArmour;
+import org.unitedlands.items.armours.GamemasterArmour;
 import org.unitedlands.items.armours.Nutcracker;
 import org.unitedlands.items.tools.AmethystPickaxe;
 import org.unitedlands.items.tools.CustomTool;
-import org.unitedlands.items.tools.Gamemaster;
+import org.unitedlands.items.tools.GamemasterTools;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +44,8 @@ public class ItemDetector implements Listener {
         armourSets = new HashMap<>();
         toolSets = new HashMap<>();
         armourSets.put("nutcracker", new Nutcracker());
-        toolSets.put("gamemaster", new Gamemaster(plugin, config));
+        armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
+        toolSets.put("gamemaster", new GamemasterTools(plugin, config));
         toolSets.put("amethyst", new AmethystPickaxe());
         // Add more sets and tools here...
     }
@@ -186,8 +190,19 @@ public class ItemDetector implements Listener {
         Player player = event.getPlayer();
         CustomTool tool = detectTool(player);
         if (tool != null) {
-            // Delegate the interaction logic to the tool's handleInteract method
             tool.handleInteract(player, event);
+        }
+    }
+
+    @EventHandler
+    // Check player damage events for use of custom armour.
+    public void handlePlayerDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        CustomArmour armour = detectArmourSet(player);
+        if (armour != null) {
+            armour.handlePlayerDamage(player, event);
         }
     }
 
@@ -196,7 +211,6 @@ public class ItemDetector implements Listener {
     public void handleEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
             CustomTool tool = detectTool(player);
-            // Delegate to the damage logic to the spcific tool.
             if (tool != null) {
                 tool.handleEntityDamage(player, event);
             }
@@ -204,7 +218,18 @@ public class ItemDetector implements Listener {
     }
 
     @EventHandler
-    // Handle armour changes using.
+    // Handle experience pickups.
+    public void handleExpPickup(PlayerPickupExperienceEvent event) {
+        Player player = event.getPlayer();
+        ExperienceOrb orb = event.getExperienceOrb();
+        CustomArmour armour = detectArmourSet(player);
+        if (armour != null) {
+            armour.handleExpPickup(player, orb);
+        }
+    }
+
+    @EventHandler
+    // Handle armour changes.
     public void onPlayerArmorChange(PlayerArmorChangeEvent event) {
         Player player = event.getPlayer();
         Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
