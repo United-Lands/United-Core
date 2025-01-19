@@ -69,6 +69,7 @@ public class GamemasterArmour extends CustomArmour {
         return isBroken != null && isBroken == 1;
     }
 
+    @Override
     public void handlePlayerDamage(Player player, EntityDamageEvent event) {
         // Get the player's armour contents.
         ItemStack[] armourContents = player.getInventory().getArmorContents();
