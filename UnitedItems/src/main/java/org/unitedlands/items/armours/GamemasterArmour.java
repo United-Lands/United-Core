@@ -96,7 +96,6 @@ public class GamemasterArmour extends CustomArmour {
         }
     }
 
-
     @Override
     public void handleExpPickup(Player player, ExperienceOrb experienceOrb) {
         // Get the player's armour contents
