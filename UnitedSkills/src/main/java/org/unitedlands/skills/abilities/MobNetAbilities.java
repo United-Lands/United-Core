@@ -203,6 +203,7 @@ public class MobNetAbilities implements Listener {
             nbt.setByte("ulc_collarColor", collarColor);
             nbt.setIntArray("ulc_owner", owner);
             nbt.setByte("ulc_tame", tame);
+            nbt.setLong("ulc_catchtime", System.currentTimeMillis());
         });
 
         Component mobInfo = Component.text("Contains: ").color(NamedTextColor.BLUE);
@@ -263,7 +264,7 @@ public class MobNetAbilities implements Listener {
             // Calculate spawn position
             Location eyeLocation = player.getEyeLocation();
             Vector direction = eyeLocation.getDirection();
-            Location spawnLocation = player.getTargetBlockExact(6) != null
+            Location spawnBlockLocation = player.getTargetBlockExact(6) != null
                     ? player.getTargetBlockExact(10).getLocation().add(0, 1, 0)
                     : eyeLocation.add(direction.multiply(6));
 
@@ -274,8 +275,13 @@ public class MobNetAbilities implements Listener {
             }
 
             // If spawn location is valid, spawn mob
-            if (spawnLocation != null && spawnLocation.getBlock().getType() == Material.AIR) {
+            if (spawnBlockLocation != null && spawnBlockLocation.getBlock().getType() == Material.AIR) {
 
+                long catchTime = NBT.get(itemInHand, nbt -> (long) nbt.getLong("ulc_catchtime"));
+                if (System.currentTimeMillis() - catchTime <= 500)
+                    return;
+                
+                var spawnLocation = spawnBlockLocation.add(0.5, 0.5, 0.5);
                 var newMob = player.getWorld().spawnEntity(spawnLocation, EntityType.valueOf(capturedMobType));
 
                 String customName = NBT.get(itemInHand, nbt -> (String) nbt.getString("ulc_customName"));
