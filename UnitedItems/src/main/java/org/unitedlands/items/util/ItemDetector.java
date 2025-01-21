@@ -25,7 +25,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.CustomArmour;
 import org.unitedlands.items.armours.GamemasterArmour;
-import org.unitedlands.items.armours.Nutcracker;
+import org.unitedlands.items.armours.NutcrackerArmour;
 import org.unitedlands.items.tools.AmethystPickaxe;
 import org.unitedlands.items.tools.CustomTool;
 import org.unitedlands.items.tools.GamemasterTools;
@@ -43,7 +43,7 @@ public class ItemDetector implements Listener {
         FileConfiguration config = plugin.getConfig();
         armourSets = new HashMap<>();
         toolSets = new HashMap<>();
-        armourSets.put("nutcracker", new Nutcracker());
+        armourSets.put("nutcracker", new NutcrackerArmour());
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
         toolSets.put("gamemaster", new GamemasterTools(plugin, config));
         toolSets.put("amethyst", new AmethystPickaxe());
@@ -95,25 +95,19 @@ public class ItemDetector implements Listener {
         }
     }
 
-    // Remove only the effects applied by the specific armor
+    // Remove only the effects applied by the specific armour.
     private void removeAllEffects(Player player) {
+        // Detect if the player is wearing a registered armour set.
         CustomArmour detectedArmour = detectArmourSet(player);
-        if (detectedArmour != null) {
 
+        // If a registered armor set is detected, remove only its effects.
+        if (detectedArmour != null) {
             for (PotionEffectType effectType : detectedArmour.getAppliedEffects()) {
+                // Only remove effects that were applied by the detected armour.
                 if (player.hasPotionEffect(effectType)) {
                     player.removePotionEffect(effectType);
                 }
             }
-        } else {
-            // Fallback, remove effects that could belong to any armour in the registry.
-            armourSets.values().forEach(armourSet -> {
-                for (PotionEffectType effectType : armourSet.getAppliedEffects()) {
-                    if (player.hasPotionEffect(effectType)) {
-                        player.removePotionEffect(effectType);
-                    }
-                }
-            });
         }
     }
 

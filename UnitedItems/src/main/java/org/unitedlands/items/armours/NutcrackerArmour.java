@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Arrays;
 import java.util.List;
 
-public class Nutcracker extends CustomArmour {
+public class NutcrackerArmour extends CustomArmour {
 
     @Override
     public void applyEffects(Player player) {
