@@ -27,6 +27,7 @@ import org.unitedlands.items.armours.CustomArmour;
 import org.unitedlands.items.armours.GamemasterArmour;
 import org.unitedlands.items.armours.NutcrackerArmour;
 import org.unitedlands.items.tools.AmethystPickaxe;
+import org.unitedlands.items.tools.BarkbinderAxe;
 import org.unitedlands.items.tools.CustomTool;
 import org.unitedlands.items.tools.GamemasterTools;
 
@@ -47,6 +48,7 @@ public class ItemDetector implements Listener {
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
         toolSets.put("gamemaster", new GamemasterTools(plugin, config));
         toolSets.put("amethyst", new AmethystPickaxe());
+        toolSets.put("barkbinder", new BarkbinderAxe());
         // Add more sets and tools here...
     }
 
