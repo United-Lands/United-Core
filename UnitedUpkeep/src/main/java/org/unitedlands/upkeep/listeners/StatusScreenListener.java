@@ -1,9 +1,12 @@
 package org.unitedlands.upkeep.listeners;
 
 import com.palmergames.adventure.text.Component;
+import com.palmergames.adventure.text.ComponentBuilder;
 import com.palmergames.adventure.text.TextComponent;
+import com.palmergames.adventure.text.event.ClickEvent;
 import com.palmergames.adventure.text.event.HoverEvent;
 import com.palmergames.adventure.text.format.NamedTextColor;
+import com.palmergames.adventure.text.format.TextColor;
 import com.palmergames.adventure.text.format.TextDecoration;
 import com.palmergames.adventure.text.minimessage.MiniMessage;
 import com.palmergames.bukkit.towny.event.statusscreen.NationStatusScreenEvent;
@@ -36,7 +39,7 @@ public class StatusScreenListener implements Listener {
         } else if (NationMetaController.isOfficialNation(event.getNation(), "minor")) {
             this.addMinorNationComponent();
         }
-
+        this.addNationWikiLink(event);
     }
 
     @EventHandler
@@ -45,25 +48,37 @@ public class StatusScreenListener implements Listener {
         this.town = event.getTown();
         this.replaceTownSizeComponent();
         this.replaceUpkeepComponent();
-        if(TerritorialMetaController.toggledTerritorialWars(this.town)) {
+        if (TerritorialMetaController.toggledTerritorialWars(this.town)) {
             this.addTerritorialWarComponent();
         }
         if (this.town.hasNation() && NationMetaController.isOfficialNation(this.town.getNationOrNull(), "major")) {
             this.addMajorTownComponent();
-        } else if (this.town.hasNation() && NationMetaController.isOfficialNation(this.town.getNationOrNull(), "minor")) {
+        } else if (this.town.hasNation()
+                && NationMetaController.isOfficialNation(this.town.getNationOrNull(), "minor")) {
             this.addMinorTownComponent();
         }
+        this.addTownWikiLink(event);
         this.screen.removeStatusComponent("neutralityCost");
     }
 
+    private void addNationWikiLink(NationStatusScreenEvent event) {
+        this.screen.addComponentOf("wiki", "§7[§aWiki§7]", HoverEvent.showText(Component.text("§7https://wiki.unitedlands.net/wiki/" + event.getNation().getName()).appendNewline().append(Component.text("§fClick to view wiki page."))), ClickEvent.openUrl("https://wiki.unitedlands.net/wiki/" + event.getNation().getName()));
+    }
+
+    private void addTownWikiLink(TownStatusScreenEvent event) {
+        this.screen.addComponentOf("wiki", "§7[§aWiki§7]", HoverEvent.showText(Component.text("§7https://wiki.unitedlands.net/wiki/" + event.getTown().getName()).appendNewline().append(Component.text("§fClick to view wiki page."))), ClickEvent.openUrl("https://wiki.unitedlands.net/wiki/" + event.getTown().getName()));
+    }
+
     private void addTerritorialWarComponent() {
-        Component territorialWarComponent = (TextComponent)this.miniMessage.deserialize(this.unitedUpkeep.getConfig().getString("messages.territorialWars"));
+        Component territorialWarComponent = (TextComponent) this.miniMessage
+                .deserialize(this.unitedUpkeep.getConfig().getString("messages.territorialWars"));
         Component subtitle = this.screen.getComponentOrNull("subtitle");
         if (subtitle == null) {
             subtitle = this.screen.getComponentOrNull("title");
             this.screen.replaceComponent("title", subtitle.append(Component.newline().append(territorialWarComponent)));
         } else {
-            this.screen.replaceComponent("subtitle", subtitle.append(Component.newline().append(territorialWarComponent)));
+            this.screen.replaceComponent("subtitle",
+                    subtitle.append(Component.newline().append(territorialWarComponent)));
         }
     }
 
@@ -71,9 +86,11 @@ public class StatusScreenListener implements Listener {
         Component subtitle = this.screen.getComponentOrNull("subtitle");
         if (subtitle == null) {
             subtitle = this.screen.getComponentOrNull("title");
-            this.screen.replaceComponent("title", subtitle.append(Component.newline().append(this.getMajorTownComponent())));
+            this.screen.replaceComponent("title",
+                    subtitle.append(Component.newline().append(this.getMajorTownComponent())));
         } else {
-            this.screen.replaceComponent("subtitle", subtitle.append(Component.newline().append(this.getMajorTownComponent())));
+            this.screen.replaceComponent("subtitle",
+                    subtitle.append(Component.newline().append(this.getMajorTownComponent())));
         }
     }
 
@@ -81,9 +98,11 @@ public class StatusScreenListener implements Listener {
         Component subtitle = this.screen.getComponentOrNull("subtitle");
         if (subtitle == null) {
             subtitle = this.screen.getComponentOrNull("nation_title");
-            this.screen.replaceComponent("nation_title", subtitle.append(Component.newline().append(this.getMajorNationComponent())));
+            this.screen.replaceComponent("nation_title",
+                    subtitle.append(Component.newline().append(this.getMajorNationComponent())));
         } else {
-            this.screen.replaceComponent("subtitle", subtitle.append(Component.newline().append(this.getMajorNationComponent())));
+            this.screen.replaceComponent("subtitle",
+                    subtitle.append(Component.newline().append(this.getMajorNationComponent())));
         }
     }
 
@@ -91,9 +110,11 @@ public class StatusScreenListener implements Listener {
         Component subtitle = this.screen.getComponentOrNull("subtitle");
         if (subtitle == null) {
             subtitle = this.screen.getComponentOrNull("title");
-            this.screen.replaceComponent("title", subtitle.append(Component.newline().append(this.getMinorTownComponent())));
+            this.screen.replaceComponent("title",
+                    subtitle.append(Component.newline().append(this.getMinorTownComponent())));
         } else {
-            this.screen.replaceComponent("subtitle", subtitle.append(Component.newline().append(this.getMinorTownComponent())));
+            this.screen.replaceComponent("subtitle",
+                    subtitle.append(Component.newline().append(this.getMinorTownComponent())));
         }
     }
 
@@ -101,9 +122,11 @@ public class StatusScreenListener implements Listener {
         Component subtitle = this.screen.getComponentOrNull("subtitle");
         if (subtitle == null) {
             subtitle = this.screen.getComponentOrNull("nation_title");
-            this.screen.replaceComponent("nation_title", subtitle.append(Component.newline().append(this.getMinorNationComponent())));
+            this.screen.replaceComponent("nation_title",
+                    subtitle.append(Component.newline().append(this.getMinorNationComponent())));
         } else {
-            this.screen.replaceComponent("subtitle", subtitle.append(Component.newline().append(this.getMinorNationComponent())));
+            this.screen.replaceComponent("subtitle",
+                    subtitle.append(Component.newline().append(this.getMinorNationComponent())));
         }
     }
 
@@ -118,49 +141,63 @@ public class StatusScreenListener implements Listener {
     private void replaceUpkeepComponent() {
         TextComponent upkeepComponent = this.getUpkeepComponent();
         if (this.getBonusBlockDiscount() > 0.0 && this.getNationDiscount() > 0.0) {
-            upkeepComponent = (TextComponent)upkeepComponent.hoverEvent(HoverEvent.showText(this.getComponentWithAllDiscounts()));
+            upkeepComponent = (TextComponent) upkeepComponent
+                    .hoverEvent(HoverEvent.showText(this.getComponentWithAllDiscounts()));
         } else if (this.getNationDiscount() > 0.0) {
-            upkeepComponent = (TextComponent)upkeepComponent.hoverEvent(HoverEvent.showText(this.getNationDiscountComponent().append(this.getNeutralityComponent())));
+            upkeepComponent = (TextComponent) upkeepComponent.hoverEvent(
+                    HoverEvent.showText(this.getNationDiscountComponent().append(this.getNeutralityComponent())));
         } else if (this.getBonusBlockDiscount() > 0.0) {
-            upkeepComponent = (TextComponent)upkeepComponent.hoverEvent(HoverEvent.showText(this.getBonusDiscountComponent().append(this.getNeutralityComponent())));
+            upkeepComponent = (TextComponent) upkeepComponent.hoverEvent(
+                    HoverEvent.showText(this.getBonusDiscountComponent().append(this.getNeutralityComponent())));
         }
 
         this.screen.replaceComponent("upkeep", upkeepComponent);
     }
 
     private void replaceTownSizeComponent() {
-        TextComponent townSizeComponent = (TextComponent)Component.text("\nTown Size: ", NamedTextColor.DARK_GREEN).append(Component.text(this.getTownsize(), NamedTextColor.GREEN));
+        TextComponent townSizeComponent = (TextComponent) Component.text("\nTown Size: ", NamedTextColor.DARK_GREEN)
+                .append(Component.text(this.getTownsize(), NamedTextColor.GREEN));
         this.screen.replaceComponent("townblocks", townSizeComponent);
     }
 
     private TextComponent getMajorNationComponent() {
-        return (TextComponent)this.miniMessage.deserialize(this.unitedUpkeep.getConfig().getString("titles-nation.major"));
+        return (TextComponent) this.miniMessage
+                .deserialize(this.unitedUpkeep.getConfig().getString("titles-nation.major"));
     }
 
-
     private TextComponent getMajorTownComponent() {
-        return (TextComponent)this.miniMessage.deserialize(this.unitedUpkeep.getConfig().getString("titles-town.major"));
+        return (TextComponent) this.miniMessage
+                .deserialize(this.unitedUpkeep.getConfig().getString("titles-town.major"));
     }
 
     private TextComponent getMinorNationComponent() {
-        return (TextComponent)this.miniMessage.deserialize(this.unitedUpkeep.getConfig().getString("titles-nation.minor"));
+        return (TextComponent) this.miniMessage
+                .deserialize(this.unitedUpkeep.getConfig().getString("titles-nation.minor"));
     }
 
-
     private TextComponent getMinorTownComponent() {
-        return (TextComponent)this.miniMessage.deserialize(this.unitedUpkeep.getConfig().getString("titles-town.minor"));
+        return (TextComponent) this.miniMessage
+                .deserialize(this.unitedUpkeep.getConfig().getString("titles-town.minor"));
     }
 
     private TextComponent getComponentWithAllDiscounts() {
-        return (TextComponent)((TextComponent)((TextComponent)((TextComponent)Component.text("").append(this.getNationDiscountComponent())).append(Component.text("\n"))).append(this.getBonusDiscountComponent())).append(this.getNeutralityComponent());
+        return (TextComponent) ((TextComponent) ((TextComponent) ((TextComponent) Component.text("")
+                .append(this.getNationDiscountComponent())).append(Component.text("\n")))
+                .append(this.getBonusDiscountComponent())).append(this.getNeutralityComponent());
     }
 
     private TextComponent getNationDiscountComponent() {
-        return (TextComponent)((TextComponent)Component.text("[Nation Discount: ", NamedTextColor.DARK_GREEN).append(Component.text(this.getNationDiscount() + " Gold", NamedTextColor.GREEN))).append(Component.text("]", NamedTextColor.DARK_GREEN));
+        return (TextComponent) ((TextComponent) Component.text("[Nation Discount: ", NamedTextColor.DARK_GREEN)
+                .append(Component.text(this.getNationDiscount() + " Gold", NamedTextColor.GREEN)))
+                .append(Component.text("]", NamedTextColor.DARK_GREEN));
     }
 
     private TextComponent getBonusDiscountComponent() {
-        return (TextComponent)((TextComponent)((TextComponent)Component.text("[Bonus Discount: ", NamedTextColor.DARK_GREEN).append(Component.text(this.getBonusBlockDiscount() + " Gold", NamedTextColor.GREEN))).append(Component.text("(" + this.town.getBonusBlocks() + ")", NamedTextColor.AQUA))).append(Component.text("]", NamedTextColor.DARK_GREEN));
+        return (TextComponent) ((TextComponent) ((TextComponent) Component
+                .text("[Bonus Discount: ", NamedTextColor.DARK_GREEN)
+                .append(Component.text(this.getBonusBlockDiscount() + " Gold", NamedTextColor.GREEN)))
+                .append(Component.text("(" + this.town.getBonusBlocks() + ")", NamedTextColor.AQUA)))
+                .append(Component.text("]", NamedTextColor.DARK_GREEN));
     }
 
     private TextComponent getNeutralityComponent() {
@@ -168,13 +205,15 @@ public class StatusScreenListener implements Listener {
             return Component.empty();
         } else {
             double fee = this.getNeutralityFee();
-            return (TextComponent)((TextComponent)Component.text("\n[Neutrality Fees: ", NamedTextColor.DARK_GREEN).append(Component.text("" + fee + " Gold", NamedTextColor.RED))).append(Component.text("]", NamedTextColor.DARK_GREEN));
+            return (TextComponent) ((TextComponent) Component.text("\n[Neutrality Fees: ", NamedTextColor.DARK_GREEN)
+                    .append(Component.text("" + fee + " Gold", NamedTextColor.RED)))
+                    .append(Component.text("]", NamedTextColor.DARK_GREEN));
         }
     }
 
     private double getNeutralityFee() {
         int defaultFee = 25;
-        return Math.floor(this.getTownUpkeepCalculator().getDiscountedUpkeep() * 0.1 + (double)defaultFee);
+        return Math.floor(this.getTownUpkeepCalculator().getDiscountedUpkeep() * 0.1 + (double) defaultFee);
     }
 
     private TextComponent getUpkeepComponent() {
@@ -186,7 +225,11 @@ public class StatusScreenListener implements Listener {
 
         double upkeep = calculator.townUpkeepWithoutBonusDiscount() + neutralityFee;
         double discountedUpkeep = calculator.calculateTownUpkeep() + neutralityFee;
-        return (TextComponent)((TextComponent)((TextComponent)Component.text("").append(Component.text("\nUpkeep: ", NamedTextColor.DARK_GREEN))).append(Component.text(upkeep, NamedTextColor.GRAY, new TextDecoration[]{TextDecoration.STRIKETHROUGH}))).append(Component.text(" " + discountedUpkeep + " Gold", NamedTextColor.RED));
+        return (TextComponent) ((TextComponent) ((TextComponent) Component.text("")
+                .append(Component.text("\nUpkeep: ", NamedTextColor.DARK_GREEN)))
+                .append(Component.text(upkeep, NamedTextColor.GRAY,
+                        new TextDecoration[] { TextDecoration.STRIKETHROUGH })))
+                .append(Component.text(" " + discountedUpkeep + " Gold", NamedTextColor.RED));
     }
 
     private double getNationDiscount() {
