@@ -97,17 +97,16 @@ public class ItemDetector implements Listener {
         }
     }
 
-    // Remove only the effects applied by the specific armour.
     private void removeAllEffects(Player player) {
-        // Detect if the player is wearing a registered armour set.
         CustomArmour detectedArmour = detectArmourSet(player);
 
-        // If a registered armor set is detected, remove only its effects.
-        if (detectedArmour != null) {
-            for (PotionEffectType effectType : detectedArmour.getAppliedEffects()) {
-                // Only remove effects that were applied by the detected armour.
-                if (player.hasPotionEffect(effectType)) {
-                    player.removePotionEffect(effectType);
+        if (detectedArmour == null) {
+            // Remove all potion effects applied by any custom armour.
+            for (CustomArmour armour : armourSets.values()) {
+                for (PotionEffectType effectType : armour.getAppliedEffects()) {
+                    if (player.hasPotionEffect(effectType)) {
+                        player.removePotionEffect(effectType);
+                    }
                 }
             }
         }
