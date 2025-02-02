@@ -166,8 +166,11 @@ public class MobNetAbilities implements Listener {
 
         try {
             var fullMobNet = createFullMobNet(mob, type);
-            player.getInventory().addItem(fullMobNet);
-
+            var overflow = player.getInventory().addItem(fullMobNet);
+            if (overflow != null && !overflow.isEmpty())
+                for (var item : overflow.values())
+                    player.getWorld().dropItem(player.getLocation().add(0,1,0), item);
+                
             ParticleBuilder particles = new ParticleBuilder(Particle.VILLAGER_HAPPY);
             particles.count(100).location(mob.getLocation()).offset(1, 1, 1).spawn();
             player.playSound(player.getLocation(), "ui.toast.in", 1.0f, 1.0f);
