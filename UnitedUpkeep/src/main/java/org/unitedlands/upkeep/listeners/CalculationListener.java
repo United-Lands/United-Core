@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.unitedlands.upkeep.UnitedUpkeep;
 import org.unitedlands.upkeep.calculators.NationUpkeepCalculator;
 import org.unitedlands.upkeep.calculators.TownUpkeepCalculator;
-import org.unitedlands.upkeep.util.TerritorialMetaController;
 
 public class CalculationListener implements Listener {
     private final UnitedUpkeep unitedUpkeep;
@@ -28,12 +27,6 @@ public class CalculationListener implements Listener {
         if (upkeep <= 0.0) {
             upkeep = 0.0;
         }
-
-        if (town.isNeutral()) {
-            int defaultFee = 25;
-            upkeep += Math.floor(upkeep * 0.1 + (double)defaultFee);
-        }
-
 
         event.setUpkeep(upkeep);
     }
