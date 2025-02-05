@@ -230,7 +230,7 @@ public class HunterAbilities implements Listener {
 
         // Only retrieve arrows that hit entities to avoid duplication by spam shooting blocks.
         var hitEntity = event.getHitEntity();
-        if (hitEntity instanceof LivingEntity) {
+        if (hitEntity != null && hitEntity instanceof LivingEntity) {
             Bukkit.getScheduler().runTask(unitedSkills, () -> {
                 if (event.getEntity().hasMetadata("retrieved")) {
                     Arrow arrow = (Arrow) event.getEntity();
