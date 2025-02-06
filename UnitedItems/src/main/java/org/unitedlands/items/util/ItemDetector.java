@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.CustomArmour;
 import org.unitedlands.items.armours.GamemasterArmour;
@@ -39,6 +40,7 @@ public class ItemDetector implements Listener {
 
     private final Map<String, CustomArmour> armourSets;
     private final Map<String, CustomTool> toolSets;
+    private static final int ONE_YEAR_TICKS = 630720000;
 
     public ItemDetector(Plugin plugin) {
         FileConfiguration config = plugin.getConfig();
@@ -98,14 +100,16 @@ public class ItemDetector implements Listener {
     }
 
     private void removeAllEffects(Player player) {
-        CustomArmour detectedArmour = detectArmourSet(player);
-
-        if (detectedArmour == null) {
-            // Remove all potion effects applied by any custom armour.
+        if (detectArmourSet(player) == null) {
+            // Remove only the potion effects that were applied by our custom armour.
             for (CustomArmour armour : armourSets.values()) {
                 for (PotionEffectType effectType : armour.getAppliedEffects()) {
                     if (player.hasPotionEffect(effectType)) {
-                        player.removePotionEffect(effectType);
+                        PotionEffect current = player.getPotionEffect(effectType);
+                        // Remove the effect the duration is above one year.
+                        if (current != null && current.getDuration() >= ONE_YEAR_TICKS) {
+                            player.removePotionEffect(effectType);
+                        }
                     }
                 }
             }
