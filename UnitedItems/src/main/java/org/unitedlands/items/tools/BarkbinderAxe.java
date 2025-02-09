@@ -1,9 +1,11 @@
 package org.unitedlands.items.tools;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -47,20 +49,28 @@ public class BarkbinderAxe extends CustomTool {
     @Override
     public void handleInteract(Player player, PlayerInteractEvent event) {
 
-        // Skip if the action is invalid or no block is clicked.
+        // Only continue if a block was right-clicked.
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null) {
             return;
         }
 
-        ItemStack item = player.getInventory().getItemInMainHand();
         Block block = event.getClickedBlock();
+
+        // Simulate a block break event to check for permissions.
+        BlockBreakEvent fakeBreakEvent = new BlockBreakEvent(block, player);
+        Bukkit.getPluginManager().callEvent(fakeBreakEvent);
+        if (fakeBreakEvent.isCancelled()) {
+            // The player doesn't have permission to break this block, cancel interaction.
+            return;
+        }
+
+        ItemStack item = player.getInventory().getItemInMainHand();
 
         Material strippedMaterial = block.getType();
         if (!STRIPPED_TO_UNSTRIPPED.containsKey(strippedMaterial)) {
             return;
         }
 
-        // Change block to unstripped version.
         Material unstrippedMaterial = STRIPPED_TO_UNSTRIPPED.get(strippedMaterial);
         block.setType(unstrippedMaterial);
 
