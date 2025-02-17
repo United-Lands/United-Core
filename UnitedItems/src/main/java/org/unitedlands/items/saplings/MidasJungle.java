@@ -10,7 +10,7 @@ public class MidasJungle extends CustomSapling {
         super("midas_jungle",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, "trees:midas_jungle_log", false,
-                Material.PAPER, "trees:midas_jungle_leaves", false,
+                Material.PAPER, "trees:midas_jungle_leaves", "trees:midas_jungle_leaves_fruited", false,
                 0.25);
     }
 

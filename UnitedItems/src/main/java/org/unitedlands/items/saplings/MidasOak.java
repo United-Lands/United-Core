@@ -10,7 +10,7 @@ public class MidasOak extends CustomSapling {
         super("midas_oak",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, "trees:midas_oak_log", false,
-                Material.PAPER, "trees:midas_oak_leaves", false,
+                Material.PAPER, "trees:midas_oak_leaves", "trees:midas_oak_leaves_fruited", false,
                 0.25);
     }
 

@@ -14,13 +14,14 @@ public abstract class CustomSapling {
     private final String stemReplaceBlockName;
     private final Material fruitBlock;
     private final String customLeavesName;
+    private final String fruitedLeavesName;
     private final double fruitChance;
     private final boolean useVanillaStem;
     private final boolean useVanillaLeaves;
 
     public CustomSapling(String id, Material vanillaSapling, Material stemBlock,
                          String stemReplaceBlockName, boolean useVanillaStem,
-                         Material fruitBlock, String customLeavesName, boolean useVanillaLeaves,
+                         Material fruitBlock, String customLeavesName, String fruitedLeavesName, boolean useVanillaLeaves,
                          double fruitChance) {
         this.id = id;
         this.vanillaSapling = vanillaSapling;
@@ -29,6 +30,7 @@ public abstract class CustomSapling {
         this.useVanillaStem = useVanillaStem;
         this.fruitBlock = fruitBlock;
         this.customLeavesName = customLeavesName;
+        this.fruitedLeavesName = fruitedLeavesName;
         this.useVanillaLeaves = useVanillaLeaves;
         this.fruitChance = fruitChance;
     }
@@ -68,6 +70,10 @@ public abstract class CustomSapling {
 
     public String getCustomLeavesName() {
         return customLeavesName;
+    }
+
+    public String getFruitedLeavesName() {
+        return fruitedLeavesName;
     }
 
     public boolean isSuccessful() {

@@ -64,9 +64,16 @@ public class ItemDetector implements Listener {
         toolSets.put("barkbinder", new BarkbinderAxe());
 
         saplingSets.put("ancient_oak_sapling", new AncientOak());
+        saplingSets.put("avocado_sapling", new Avocado());
+        saplingSets.put("banana_sapling", new Banana());
+        saplingSets.put("lemon_sapling", new Lemon());
         saplingSets.put("mango_sapling", new Mango());
         saplingSets.put("midas_jungle_sapling", new MidasJungle());
         saplingSets.put("midas_oak_sapling", new MidasOak());
+        saplingSets.put("olive_sapling", new Olive());
+        saplingSets.put("orange_sapling", new Orange());
+        saplingSets.put("pear_sapling", new Pear());
+
 
         // Add more sets here...
     }
@@ -455,14 +462,11 @@ public class ItemDetector implements Listener {
                 // Leaf construction.
                 else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
                     if (sapling.getCustomLeavesName() != null) {
-                        block.setType(Material.AIR); // Remove vanilla leaves first.
+                        block.setType(Material.AIR); // Remove vanilla leaves first
 
-                        // Only apply fruited leaves if constructor allows it.
-                        if (sapling.isSuccessful()) {
-                            CustomBlock.place(sapling.getCustomLeavesName() + "_fruited", blockLocation);
-                        } else {
-                            CustomBlock.place(sapling.getCustomLeavesName(), blockLocation);
-                        }
+                        // Get defined fruited block.
+                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
+                        CustomBlock.place(leafType, blockLocation);
                     }
                 }
             }

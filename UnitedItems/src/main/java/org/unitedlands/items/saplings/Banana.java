@@ -4,13 +4,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class Mango extends CustomSapling {
+public class Banana extends CustomSapling {
 
-    public Mango() {
-        super("mango",
+    public Banana() {
+        super("banana",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, null, true,
-                Material.PAPER, "trees:jungle_leaves", "trees:mango_leaves_fruited", false,
+                Material.PAPER, "trees:jungle_leaves", "trees:banana_leaves_fruited", false,
                 0.25);
     }
 

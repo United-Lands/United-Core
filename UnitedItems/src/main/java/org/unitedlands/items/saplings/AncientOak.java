@@ -14,7 +14,7 @@ public class AncientOak extends CustomSapling {
         super("ancient_oak",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, "trees:ancient_oak_log", false,
-                Material.PAPER, "trees:ancient_oak_leaves", false,
+                Material.PAPER, "trees:ancient_oak_leaves", "trees:ancient_oak_leaves", false,
                 0.00);
     }
 
