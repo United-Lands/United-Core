@@ -1,9 +1,3 @@
-Items:
-  ReceivedSapling: "Sapling given!"
-  InvalidTree: "Tree does not exist!"
-Global:
-  NoPerm: "You don't have permission to run this command!"
-
 ############
 # Language #
 ############
