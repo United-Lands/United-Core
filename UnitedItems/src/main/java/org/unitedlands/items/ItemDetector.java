@@ -7,6 +7,7 @@ import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -73,7 +74,6 @@ public class ItemDetector implements Listener {
         saplingSets.put("olive_sapling", new Olive());
         saplingSets.put("orange_sapling", new Orange());
         saplingSets.put("pear_sapling", new Pear());
-
 
         // Add more sets here...
     }
@@ -272,8 +272,35 @@ public class ItemDetector implements Listener {
         }
 
         Block clickedBlock = event.getClickedBlock();
-        if (clickedBlock == null || !(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT || clickedBlock.getType() == Material.PODZOL)) {
+        if (clickedBlock == null ||
+              !(clickedBlock.getType() == Material.GRASS_BLOCK ||
+                clickedBlock.getType() == Material.DIRT ||
+                clickedBlock.getType() == Material.PODZOL ||
+                clickedBlock.getType() == Material.SHORT_GRASS ||
+                clickedBlock.getType() == Material.TALL_GRASS ||
+                clickedBlock.getType() == Material.DEAD_BUSH ||
+                clickedBlock.getType() == Material.SNOW)) {
             return false;
+        }
+
+        // Check if the clicked block is short grass or tall grass.
+        if (clickedBlock.getType() == Material.SHORT_GRASS ||
+            clickedBlock.getType() == Material.TALL_GRASS ||
+            clickedBlock.getType() == Material.DEAD_BUSH ||
+            clickedBlock.getType() == Material.SNOW) {
+            clickedBlock.setType(Material.AIR); // Remove the grass
+            clickedBlock = clickedBlock.getRelative(0, -1, 0); // Get the block below/
+        }
+
+        // Ensure sapling can only be planted on valid ground.
+        if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT || clickedBlock.getType() == Material.PODZOL)) {
+            return false;
+        }
+
+        Biome biome = clickedBlock.getBiome();
+        if (!sapling.canGrowInBiome(biome)) {
+            event.setCancelled(true);
+            return true;
         }
 
         Block above = clickedBlock.getRelative(0, 1, 0);
@@ -439,9 +466,11 @@ public class ItemDetector implements Listener {
         CustomSapling sapling = saplingMap.get(location);
 
         if (sapling != null) {
-            saplingMap.remove(location);
-            // Cancel vanilla tree growth.
-            event.setCancelled(true);
+            Biome biome = location.getBlock().getBiome();
+            if (!sapling.canGrowInBiome(biome)) {
+                event.setCancelled(true);
+                return;
+            }
 
             for (BlockState block : event.getBlocks()) {
                 Location blockLocation = block.getLocation().toBlockLocation();
@@ -486,5 +515,4 @@ public class ItemDetector implements Listener {
     public void onTreeBlockBreak(BlockBreakEvent event) {
         removeMappedLocation(event.getBlock().getLocation());
     }
-
 }

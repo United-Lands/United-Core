@@ -3,8 +3,11 @@ package org.unitedlands.items.saplings;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Set;
 
 public abstract class CustomSapling {
 
@@ -18,11 +21,12 @@ public abstract class CustomSapling {
     private final double fruitChance;
     private final boolean useVanillaStem;
     private final boolean useVanillaLeaves;
+    private final Set<Biome> allowedBiomes;
 
     public CustomSapling(String id, Material vanillaSapling, Material stemBlock,
                          String stemReplaceBlockName, boolean useVanillaStem,
                          Material fruitBlock, String customLeavesName, String fruitedLeavesName, boolean useVanillaLeaves,
-                         double fruitChance) {
+                         double fruitChance, Set<Biome> allowedBiomes) {
         this.id = id;
         this.vanillaSapling = vanillaSapling;
         this.stemBlock = stemBlock;
@@ -33,6 +37,7 @@ public abstract class CustomSapling {
         this.fruitedLeavesName = fruitedLeavesName;
         this.useVanillaLeaves = useVanillaLeaves;
         this.fruitChance = fruitChance;
+        this.allowedBiomes = allowedBiomes;
     }
 
     public boolean isUsingVanillaStem() {
@@ -82,6 +87,10 @@ public abstract class CustomSapling {
 
     public boolean hasPermission(Player player) {
         return true;
+    }
+
+    public boolean canGrowInBiome(Biome biome) {
+        return allowedBiomes == null || allowedBiomes.isEmpty() || allowedBiomes.contains(biome);
     }
 
     public abstract void onPlant(Player player, Location location);

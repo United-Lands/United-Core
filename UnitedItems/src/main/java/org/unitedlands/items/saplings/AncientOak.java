@@ -8,6 +8,8 @@ import org.unitedlands.skills.skill.SkillType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import java.util.Set;
+
 public class AncientOak extends CustomSapling {
 
     public AncientOak() {
@@ -15,7 +17,7 @@ public class AncientOak extends CustomSapling {
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, "trees:ancient_oak_log", false,
                 Material.PAPER, "trees:ancient_oak_leaves", "trees:ancient_oak_leaves", false,
-                0.00);
+                0.00, Set.of());
     }
 
     @Override

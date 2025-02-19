@@ -2,7 +2,10 @@ package org.unitedlands.items.saplings;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
+
+import java.util.Set;
 
 public class Olive extends CustomSapling {
 
@@ -11,7 +14,7 @@ public class Olive extends CustomSapling {
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
                 Material.PAPER, "trees:oak_leaves", "trees:olive_leaves_fruited", false,
-                0.25);
+                0.25, Set.of(Biome.PLAINS, Biome.SAVANNA));
     }
 
     @Override
