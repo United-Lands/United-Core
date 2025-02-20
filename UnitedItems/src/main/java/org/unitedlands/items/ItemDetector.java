@@ -199,27 +199,17 @@ public class ItemDetector implements Listener {
     // Detect if a held item is a custom sapling.
     public CustomSapling detectSapling(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) {
-            Logger.log("&cNo item detected.");
             return null;
         }
 
         CustomStack customStack = CustomStack.byItemStack(item);
         if (customStack == null) {
-            Logger.log("&cItem is not a custom stack.");
             return null;
         }
 
         String saplingId = customStack.getId().trim().toLowerCase();
-        Logger.log("&aDetected sapling ID: " + saplingId);
 
-        CustomSapling sapling = saplingSets.get(saplingId);
-        if (sapling != null) {
-            Logger.log("&aSapling found: " + sapling.getId());
-        } else {
-            Logger.log("&cNo matching sapling for ID: " + saplingId);
-        }
-
-        return sapling;
+        return saplingSets.get(saplingId);
     }
 
     @SuppressWarnings("unchecked")
