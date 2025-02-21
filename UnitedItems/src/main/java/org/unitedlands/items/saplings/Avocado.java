@@ -10,7 +10,7 @@ import java.util.Set;
 public class Avocado extends CustomSapling {
 
     public Avocado() {
-        super("avocado",
+        super("avocado_sapling",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, null, true,
                 Material.PAPER, "trees:jungle_leaves", "trees:avocado_leaves_fruited", false,

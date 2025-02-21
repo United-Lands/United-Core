@@ -10,7 +10,7 @@ import java.util.Set;
 public class Mango extends CustomSapling {
 
     public Mango() {
-        super("mango",
+        super("mango_sapling",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, null, true,
                 Material.PAPER, "trees:jungle_leaves", "trees:mango_leaves_fruited", false,

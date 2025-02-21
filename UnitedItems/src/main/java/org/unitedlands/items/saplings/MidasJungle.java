@@ -10,7 +10,7 @@ import java.util.Set;
 public class MidasJungle extends CustomSapling {
 
     public MidasJungle() {
-        super("midas_jungle",
+        super("midas_jungle_sapling",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, "trees:midas_jungle_log", false,
                 Material.PAPER, "trees:midas_jungle_leaves", "trees:midas_jungle_leaves_fruited", false,

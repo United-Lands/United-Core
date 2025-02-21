@@ -35,9 +35,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.*;
 import org.unitedlands.items.saplings.*;
 import org.unitedlands.items.tools.*;
-import org.unitedlands.items.util.GenericLocation;
-import org.unitedlands.items.util.Logger;
-import org.unitedlands.items.util.SerializableData;
+import org.unitedlands.items.util.DataManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,14 +46,15 @@ public class ItemDetector implements Listener {
     private final Map<String, CustomArmour> armourSets;
     private final Map<String, CustomTool> toolSets;
     private final Map<String, CustomSapling> saplingSets;
-    private final Map<Location, CustomSapling> saplingMap = new HashMap<>();
     private static final int ONE_YEAR_TICKS = 630720000;
+    private final DataManager dataManager;
 
     public ItemDetector(Plugin plugin) {
         FileConfiguration config = plugin.getConfig();
         armourSets = new HashMap<>();
         toolSets = new HashMap<>();
         saplingSets = new HashMap<>();
+        dataManager = new DataManager();
 
         armourSets.put("nutcracker", new NutcrackerArmour());
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
@@ -74,6 +73,10 @@ public class ItemDetector implements Listener {
         saplingSets.put("olive_sapling", new Olive());
         saplingSets.put("orange_sapling", new Orange());
         saplingSets.put("pear_sapling", new Pear());
+
+        dataManager.loadSaplings(saplingSets);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> Bukkit.getLogger().info("DEBUG: Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
 
     }
 
@@ -360,59 +363,9 @@ public class ItemDetector implements Listener {
 
     // Detect if a held item is a custom sapling.
     public CustomSapling detectSapling(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) {
-            return null;
-        }
-
+        if (item == null || item.getType() == Material.AIR) return null;
         CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) {
-            return null;
-        }
-
-        String saplingId = customStack.getId().trim().toLowerCase();
-
-        return saplingSets.get(saplingId);
-    }
-
-    @SuppressWarnings("unchecked")
-    // Load saplings from the data manager.
-    public void loadSaplings() {
-        HashMap<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase("sapling.dat", HashMap.class);
-        if (loadedSaplings == null || loadedSaplings.isEmpty()) {
-            Logger.log("&aNo cached saplings found.");
-            return;
-        }
-
-        Logger.log(String.format("&aLoading cached saplings &6[&e%d&6]...", loadedSaplings.size()));
-        loadedSaplings.forEach((genericLocation, saplingId) -> {
-            Location location = genericLocation.getLocation();
-            if (location != null) {
-                CustomSapling sapling = saplingSets.get(saplingId.toLowerCase());
-                if (sapling != null) {
-                    saplingMap.put(location, sapling);
-                }
-            }
-        });
-    }
-
-    // Ger sapling info from the data manager.
-    public Map<GenericLocation, String> getSerializableSaplings() {
-        Map<GenericLocation, String> serializedSaplings = new HashMap<>();
-        saplingMap.forEach((location, sapling) -> {
-            if (location != null) {
-                serializedSaplings.put(new GenericLocation(location), sapling.getId());
-            }
-        });
-        return serializedSaplings;
-    }
-
-    // Remove a sapling from the data manager if it's broken/grown.
-    public void removeMappedLocation(Location location) {
-        CustomSapling sapling = saplingMap.remove(location);
-        if (sapling != null) {
-            location.getWorld().dropItemNaturally(location, sapling.getSeedItem());
-            location.getBlock().setType(Material.AIR);
-        }
+        return (customStack != null) ? saplingSets.get(customStack.getId().toLowerCase()) : null;
     }
 
     // Handle sapling placement.
@@ -465,7 +418,7 @@ public class ItemDetector implements Listener {
 
         // Plant the sapling.
         above.setType(sapling.getVanillaSapling());
-        saplingMap.put(above.getLocation(), sapling);
+        dataManager.addSapling(above.getLocation(), sapling);
 
         // Reduce the item count.
         event.getItem().setAmount(event.getItem().getAmount() - 1);
@@ -476,10 +429,10 @@ public class ItemDetector implements Listener {
     }
 
     @EventHandler
-    // Handle tree grow events (creating the custom tree).
+    // Handle tree construction.
     public void onGrow(StructureGrowEvent event) {
         Location location = event.getLocation().toBlockLocation();
-        CustomSapling sapling = saplingMap.get(location);
+        CustomSapling sapling = dataManager.getSapling(location);
 
         if (sapling != null) {
             Biome biome = location.getBlock().getBiome();
@@ -488,40 +441,42 @@ public class ItemDetector implements Listener {
                 return;
             }
 
+            event.setCancelled(true); // Stop the vanilla tree from growing.
+
             for (BlockState block : event.getBlocks()) {
                 Location blockLocation = block.getLocation().toBlockLocation();
+                Material blockMaterial = block.getBlockData().getMaterial();
 
-                // Log construction.
-                if (block.getBlockData().getMaterial().toString().endsWith("_LOG")) {
+                // Create the stem.
+                if (blockMaterial.toString().endsWith("_LOG")) {
                     if (sapling.isUsingVanillaStem()) {
-                        blockLocation.getBlock().setType(sapling.getStemBlock());
+                        Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () ->
+                                blockLocation.getBlock().setType(sapling.getStemBlock()), 5L);
                     } else if (sapling.getStemReplaceBlockName() != null) {
-                        CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
-
-                        if (placedBlock == null) {
-                            blockLocation.getBlock().setType(sapling.getStemBlock());
-                        }
+                            CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
+                            if (placedBlock == null) {
+                                blockLocation.getBlock().setType(sapling.getStemBlock());
+                            }
                     }
                 }
 
-                // Leaf construction.
+                // Create the leaves.
                 else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
                     if (sapling.getCustomLeavesName() != null) {
-                        block.setType(Material.AIR); // Remove vanilla leaves first
-
-                        // Get defined fruited block.
-                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
-                        CustomBlock.place(leafType, blockLocation);
+                            blockLocation.getBlock().setType(Material.AIR);
+                            String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
+                            CustomBlock.place(leafType, blockLocation);
                     }
                 }
             }
         }
     }
 
+
     @EventHandler
     // Handle custom tree leaf decay.
     public void onDecay(LeavesDecayEvent event) {
-        CustomSapling sapling = saplingMap.get(event.getBlock().getLocation());
+        CustomSapling sapling = dataManager.getSapling(event.getBlock().getLocation());
         if (sapling != null) {
             event.setCancelled(true);
             event.getBlock().setType(Material.AIR);
@@ -531,7 +486,14 @@ public class ItemDetector implements Listener {
     @EventHandler
     // Remove blocks from the map if they're broken.
     public void onTreeBlockBreak(BlockBreakEvent event) {
-        removeMappedLocation(event.getBlock().getLocation());
+        Location loc = event.getBlock().getLocation();
+        if (dataManager.hasSapling(loc)) {
+            dataManager.removeSapling(loc);
+        }
+    }
+
+    public void saveData() {
+        dataManager.saveSaplings();
     }
 
     /*
