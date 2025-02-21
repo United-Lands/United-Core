@@ -35,9 +35,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.*;
 import org.unitedlands.items.saplings.*;
 import org.unitedlands.items.tools.*;
-import org.unitedlands.items.util.GenericLocation;
-import org.unitedlands.items.util.Logger;
-import org.unitedlands.items.util.SerializableData;
+import org.unitedlands.items.util.DataManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,14 +46,15 @@ public class ItemDetector implements Listener {
     private final Map<String, CustomArmour> armourSets;
     private final Map<String, CustomTool> toolSets;
     private final Map<String, CustomSapling> saplingSets;
-    private final Map<Location, CustomSapling> saplingMap = new HashMap<>();
     private static final int ONE_YEAR_TICKS = 630720000;
+    private final DataManager dataManager;
 
     public ItemDetector(Plugin plugin) {
         FileConfiguration config = plugin.getConfig();
         armourSets = new HashMap<>();
         toolSets = new HashMap<>();
         saplingSets = new HashMap<>();
+        dataManager = new DataManager();
 
         armourSets.put("nutcracker", new NutcrackerArmour());
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
@@ -75,8 +74,23 @@ public class ItemDetector implements Listener {
         saplingSets.put("orange_sapling", new Orange());
         saplingSets.put("pear_sapling", new Pear());
 
-        // Add more sets here...
+        dataManager.loadSaplings(saplingSets);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> Bukkit.getLogger().info("DEBUG: Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
+
     }
+
+    /*
+
+    #####################################################
+    # +-----------------------------------------------+ #
+    # |                Armour Handling                | #
+    # +-----------------------------------------------+ #
+    #####################################################
+
+    This section contains all methods and events related to armour handling.
+
+     */
 
     // Detect if the player is wearing a full set of a registered armour.
     private CustomArmour detectArmourSet(Player player) {
@@ -114,6 +128,7 @@ public class ItemDetector implements Listener {
         return customStack != null && customStack.getId().contains(setId);
     }
 
+    // Apply effects if armour is worn.
     private void applyEffectsIfWearingArmor(Player player) {
         CustomArmour armour = detectArmourSet(player);
         if (armour != null) {
@@ -123,6 +138,7 @@ public class ItemDetector implements Listener {
         }
     }
 
+    // Remove effects if armour is removed.
     private void removeAllEffects(Player player) {
         if (detectArmourSet(player) == null) {
             // Remove only the potion effects that were applied by our custom armour.
@@ -139,6 +155,70 @@ public class ItemDetector implements Listener {
             }
         }
     }
+
+    @EventHandler
+    // Check player damage events for use of custom armour.
+    public void handlePlayerDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        CustomArmour armour = detectArmourSet(player);
+        if (armour != null) {
+            armour.handlePlayerDamage(player, event);
+        }
+    }
+
+    @EventHandler
+    // Handle experience pickups.
+    public void handleExpPickup(PlayerPickupExperienceEvent event) {
+        Player player = event.getPlayer();
+        ExperienceOrb orb = event.getExperienceOrb();
+        CustomArmour armour = detectArmourSet(player);
+        if (armour != null) {
+            armour.handleExpPickup(player, orb);
+        }
+    }
+
+    @EventHandler
+    // Handle armour changes.
+    public void onPlayerArmorChange(PlayerArmorChangeEvent event) {
+        Player player = event.getPlayer();
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
+    }
+
+    @EventHandler
+    // Apply or remove effects when a player joins.
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        applyEffectsIfWearingArmor(event.getPlayer());
+    }
+
+    @EventHandler
+    // Check if the armour has broken when taking damage.
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
+        }
+    }
+
+    @EventHandler
+    // Removes effects on player death.
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        detectArmourSet(player);
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeAllEffects(player));
+    }
+
+    /*
+
+    ###################################################
+    # +---------------------------------------------+ #
+    # |                Tool Handling                | #
+    # +---------------------------------------------+ #
+    ###################################################
+
+    This section contains all methods and events related to tool and weapon handling.
+
+     */
 
     // Detect if the player is holding a registered tool.
     private CustomTool detectTool(Player player) {
@@ -175,6 +255,7 @@ public class ItemDetector implements Listener {
         }
     }
 
+    // Remove any effects if a player is no longer holding the tool.
     private void removeToolEffects(Player player) {
         CustomTool detectedTool = detectTool(player); // Detect currently held tool
         if (detectedTool != null) {
@@ -196,68 +277,95 @@ public class ItemDetector implements Listener {
         }
     }
 
-    // Detect if a held item is a custom sapling.
-    public CustomSapling detectSapling(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) {
-            Logger.log("&cNo item detected.");
-            return null;
+    @EventHandler
+    // Check block breaks for use of custom tools.
+    public void onNormalBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        CustomTool tool = detectTool(player);
+        // Delegate the block breaking logic to the specific tool.
+        if (tool != null) {
+            tool.handleBlockBreak(player, event);
         }
-
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) {
-            Logger.log("&cItem is not a custom stack.");
-            return null;
-        }
-
-        String saplingId = customStack.getId().trim().toLowerCase();
-        Logger.log("&aDetected sapling ID: " + saplingId);
-
-        CustomSapling sapling = saplingSets.get(saplingId);
-        if (sapling != null) {
-            Logger.log("&aSapling found: " + sapling.getId());
-        } else {
-            Logger.log("&cNo matching sapling for ID: " + saplingId);
-        }
-
-        return sapling;
     }
 
-    @SuppressWarnings("unchecked")
-    public void loadSaplings() {
-        HashMap<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase("sapling.dat", HashMap.class);
-        if (loadedSaplings == null || loadedSaplings.isEmpty()) {
-            Logger.log("&aNo cached saplings found.");
-            return;
+    @EventHandler
+    // Check entity damage for use of custom tools.
+    public void handleEntityDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
+            CustomTool tool = detectTool(player);
+            if (tool != null) {
+                tool.handleEntityDamage(player, event);
+            }
         }
+    }
 
-        Logger.log(String.format("&aLoading cached saplings &6[&e%d&6]...", loadedSaplings.size()));
-        loadedSaplings.forEach((genericLocation, saplingId) -> {
-            Location location = genericLocation.getLocation();
-            if (location != null) {
-                CustomSapling sapling = saplingSets.get(saplingId.toLowerCase());
-                if (sapling != null) {
-                    saplingMap.put(location, sapling);
+    @EventHandler
+    // Check if tools has been moved when interacting with the inventory.
+    public void onInventoryClick(InventoryClickEvent event) {
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> {
+            if (event.getWhoClicked() instanceof Player player) {
+                applyEffectsIfHoldingTool(player);
+            }
+        });
+    }
+
+    @EventHandler
+    // Checks when a player switches their held item.
+    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
+    }
+
+    @EventHandler
+    // Checks if the dropped item is a registered tool.
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        ItemStack droppedItem = event.getItemDrop().getItemStack();
+        for (Map.Entry<String, CustomTool> entry : toolSets.entrySet()) {
+            String toolId = entry.getKey();
+            if (isCustomTool(droppedItem, toolId)) {
+                // If the dropped item is a registered tool, remove its effects.
+                Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeToolEffects(player));
+                break; // Stop checking further since the tool has been identified.
+            }
+        }
+    }
+
+    @EventHandler
+    // Checks if the player picks up a registered tool.
+    public void onEntityPickupItem(EntityPickupItemEvent event) {
+        // Check if the entity picking up the item is a player.
+        if (event.getEntity() instanceof Player player) {
+            ItemStack pickedUpItem = event.getItem().getItemStack();
+            // Check if the picked up item is a registered tool.
+            for (Map.Entry<String, CustomTool> entry : toolSets.entrySet()) {
+                String toolId = entry.getKey();
+                if (isCustomTool(pickedUpItem, toolId)) {
+                    // If the picked up item is a registered tool, apply its effects.
+                    Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
+                    break; // Stop checking further since the tool has been identified.
                 }
             }
-        });
-    }
-
-    public Map<GenericLocation, String> getSerializableSaplings() {
-        Map<GenericLocation, String> serializedSaplings = new HashMap<>();
-        saplingMap.forEach((location, sapling) -> {
-            if (location != null) {
-                serializedSaplings.put(new GenericLocation(location), sapling.getId());
-            }
-        });
-        return serializedSaplings;
-    }
-
-    public void removeMappedLocation(Location location) {
-        CustomSapling sapling = saplingMap.remove(location);
-        if (sapling != null) {
-            location.getWorld().dropItemNaturally(location, sapling.getSeedItem());
-            location.getBlock().setType(Material.AIR);
         }
+    }
+
+    /*
+
+    ###################################################
+    # +---------------------------------------------+ #
+    # |                Tree Handling                | #
+    # +---------------------------------------------+ #
+    ###################################################
+
+    This section contains all methods and events related to trees and saplings.
+
+     */
+
+    // Detect if a held item is a custom sapling.
+    public CustomSapling detectSapling(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return null;
+        CustomStack customStack = CustomStack.byItemStack(item);
+        return (customStack != null) ? saplingSets.get(customStack.getId().toLowerCase()) : null;
     }
 
     // Handle sapling placement.
@@ -310,7 +418,7 @@ public class ItemDetector implements Listener {
 
         // Plant the sapling.
         above.setType(sapling.getVanillaSapling());
-        saplingMap.put(above.getLocation(), sapling);
+        dataManager.addSapling(above.getLocation(), sapling);
 
         // Reduce the item count.
         event.getItem().setAmount(event.getItem().getAmount() - 1);
@@ -321,18 +429,87 @@ public class ItemDetector implements Listener {
     }
 
     @EventHandler
-    // Check block breaks for use of custom tools.
-    public void onNormalBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        CustomTool tool = detectTool(player);
-        // Delegate the block breaking logic to the specific tool.
-        if (tool != null) {
-            tool.handleBlockBreak(player, event);
+    // Handle tree construction.
+    public void onGrow(StructureGrowEvent event) {
+        Location location = event.getLocation().toBlockLocation();
+        CustomSapling sapling = dataManager.getSapling(location);
+
+        if (sapling != null) {
+            Biome biome = location.getBlock().getBiome();
+            if (!sapling.canGrowInBiome(biome)) {
+                event.setCancelled(true);
+                return;
+            }
+
+            event.setCancelled(true); // Stop the vanilla tree from growing.
+
+            for (BlockState block : event.getBlocks()) {
+                Location blockLocation = block.getLocation().toBlockLocation();
+                Material blockMaterial = block.getBlockData().getMaterial();
+
+                // Create the stem.
+                if (blockMaterial.toString().endsWith("_LOG")) {
+                    if (sapling.isUsingVanillaStem()) {
+                        Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () ->
+                                blockLocation.getBlock().setType(sapling.getStemBlock()), 5L);
+                    } else if (sapling.getStemReplaceBlockName() != null) {
+                            CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
+                            if (placedBlock == null) {
+                                blockLocation.getBlock().setType(sapling.getStemBlock());
+                            }
+                    }
+                }
+
+                // Create the leaves.
+                else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
+                    if (sapling.getCustomLeavesName() != null) {
+                            blockLocation.getBlock().setType(Material.AIR);
+                            String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
+                            CustomBlock.place(leafType, blockLocation);
+                    }
+                }
+            }
+        }
+    }
+
+
+    @EventHandler
+    // Handle custom tree leaf decay.
+    public void onDecay(LeavesDecayEvent event) {
+        CustomSapling sapling = dataManager.getSapling(event.getBlock().getLocation());
+        if (sapling != null) {
+            event.setCancelled(true);
+            event.getBlock().setType(Material.AIR);
         }
     }
 
     @EventHandler
-    // Check block interactions for use of custom tools.
+    // Remove blocks from the map if they're broken.
+    public void onTreeBlockBreak(BlockBreakEvent event) {
+        Location loc = event.getBlock().getLocation();
+        if (dataManager.hasSapling(loc)) {
+            dataManager.removeSapling(loc);
+        }
+    }
+
+    public void saveData() {
+        dataManager.saveSaplings();
+    }
+
+    /*
+
+    ######################################################
+    # +------------------------------------------------+ #
+    # |                General Handling                | #
+    # +------------------------------------------------+ #
+    ######################################################
+
+    This section contains all methods and events that are not specific to one category.
+
+     */
+
+    @EventHandler
+    // Check block interactions for use of custom items.
     public void handleInteract(PlayerInteractEvent event) {
         // Check if it's a sapling first.
         if (handleSaplingInteraction(event)) {
@@ -346,173 +523,4 @@ public class ItemDetector implements Listener {
         }
     }
 
-    @EventHandler
-    // Check player damage events for use of custom armour.
-    public void handlePlayerDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-        CustomArmour armour = detectArmourSet(player);
-        if (armour != null) {
-            armour.handlePlayerDamage(player, event);
-        }
-    }
-
-    @EventHandler
-    // Check entity damage for use of custom tools.
-    public void handleEntityDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player player) {
-            CustomTool tool = detectTool(player);
-            if (tool != null) {
-                tool.handleEntityDamage(player, event);
-            }
-        }
-    }
-
-    @EventHandler
-    // Handle experience pickups.
-    public void handleExpPickup(PlayerPickupExperienceEvent event) {
-        Player player = event.getPlayer();
-        ExperienceOrb orb = event.getExperienceOrb();
-        CustomArmour armour = detectArmourSet(player);
-        if (armour != null) {
-            armour.handleExpPickup(player, orb);
-        }
-    }
-
-    @EventHandler
-    // Handle armour changes.
-    public void onPlayerArmorChange(PlayerArmorChangeEvent event) {
-        Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        // Apply or remove effects when a player joins.
-        applyEffectsIfWearingArmor(event.getPlayer());
-    }
-
-    @EventHandler
-    // Check if tools has been moved when interacting with the inventory.
-    public void onInventoryClick(InventoryClickEvent event) {
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> {
-            if (event.getWhoClicked() instanceof Player player) {
-                applyEffectsIfHoldingTool(player);
-            }
-        });
-    }
-
-    @EventHandler
-    // Check if the armour has broken when taking damage.
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
-        }
-    }
-
-    @EventHandler
-    // Removes effects on player death.
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        detectArmourSet(player);
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeAllEffects(player));
-    }
-
-    @EventHandler
-    // Checks when a player switches their held item.
-    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
-    }
-
-    @EventHandler
-    // Checks if the dropped item is a registered tool.
-    public void onPlayerDropItem(PlayerDropItemEvent event) {
-        Player player = event.getPlayer();
-        ItemStack droppedItem = event.getItemDrop().getItemStack();
-        for (Map.Entry<String, CustomTool> entry : toolSets.entrySet()) {
-            String toolId = entry.getKey();
-            if (isCustomTool(droppedItem, toolId)) {
-                // If the dropped item is a registered tool, remove its effects.
-                Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeToolEffects(player));
-                break; // Stop checking further since the tool has been identified.
-            }
-        }
-    }
-
-    @EventHandler
-    // Checks if the player picks up a registered tool.
-    public void onEntityPickupItem(EntityPickupItemEvent event) {
-        // Check if the entity picking up the item is a player.
-        if (event.getEntity() instanceof Player player) {
-            ItemStack pickedUpItem = event.getItem().getItemStack();
-            // Check if the picked up item is a registered tool.
-            for (Map.Entry<String, CustomTool> entry : toolSets.entrySet()) {
-                String toolId = entry.getKey();
-                if (isCustomTool(pickedUpItem, toolId)) {
-                    // If the picked up item is a registered tool, apply its effects.
-                    Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
-                    break; // Stop checking further since the tool has been identified.
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    // Handle tree grow events (creating the custom tree).
-    public void onGrow(StructureGrowEvent event) {
-        Location location = event.getLocation().toBlockLocation();
-        CustomSapling sapling = saplingMap.get(location);
-
-        if (sapling != null) {
-            Biome biome = location.getBlock().getBiome();
-            if (!sapling.canGrowInBiome(biome)) {
-                event.setCancelled(true);
-                return;
-            }
-
-            for (BlockState block : event.getBlocks()) {
-                Location blockLocation = block.getLocation().toBlockLocation();
-
-                // Log construction.
-                if (block.getBlockData().getMaterial().toString().endsWith("_LOG")) {
-                    if (sapling.isUsingVanillaStem()) {
-                        blockLocation.getBlock().setType(sapling.getStemBlock());
-                    } else if (sapling.getStemReplaceBlockName() != null) {
-                        CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
-
-                        if (placedBlock == null) {
-                            blockLocation.getBlock().setType(sapling.getStemBlock());
-                        }
-                    }
-                }
-
-                // Leaf construction.
-                else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
-                    if (sapling.getCustomLeavesName() != null) {
-                        block.setType(Material.AIR); // Remove vanilla leaves first
-
-                        // Get defined fruited block.
-                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
-                        CustomBlock.place(leafType, blockLocation);
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onDecay(LeavesDecayEvent event) {
-        CustomSapling sapling = saplingMap.get(event.getBlock().getLocation());
-        if (sapling != null) {
-            event.setCancelled(true);
-            event.getBlock().setType(Material.AIR);
-        }
-    }
-
-    @EventHandler
-    public void onTreeBlockBreak(BlockBreakEvent event) {
-        removeMappedLocation(event.getBlock().getLocation());
-    }
 }

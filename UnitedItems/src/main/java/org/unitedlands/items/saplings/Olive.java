@@ -10,7 +10,7 @@ import java.util.Set;
 public class Olive extends CustomSapling {
 
     public Olive() {
-        super("olive",
+        super("olive_sapling",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
                 Material.PAPER, "trees:oak_leaves", "trees:olive_leaves_fruited", false,
