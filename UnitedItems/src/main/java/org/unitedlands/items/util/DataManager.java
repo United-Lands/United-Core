@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.unitedlands.items.crops.CustomCrop;
 import org.unitedlands.items.saplings.CustomSapling;
 
 import java.util.HashMap;
@@ -14,6 +15,9 @@ public class DataManager {
 
     private static final String SAPLING_FILE = "sapling.dat";
     private final Map<Location, CustomSapling> saplingMap = new HashMap<>();
+    private static final String CROP_FILE = "crops.dat";
+    private final Map<Location, CustomCrop> cropMap = new HashMap<>();
+    private final Map<Location, Integer> growthStages = new HashMap<>();
 
     /*
 
@@ -42,13 +46,9 @@ public class DataManager {
             CustomSapling sapling = saplingSets.get(saplingId);
             saplingMap.put(location, sapling);
 
-            Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> {
-                log("&6[DEBUG] Restoring tree at " + location);
-                sapling.onGrow(location);
-            }, 20L); // Delay to allow chunk loading
+            Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> sapling.onGrow(location), 20L); // Delay to allow chunk loading
         }
-
-        log("&aSaplings successfully loaded into memory: " + saplingMap.size());
+        log("Saplings successfully loaded into memory: " + saplingMap.size());
     }
 
     // Save saplings to storage
@@ -56,14 +56,44 @@ public class DataManager {
         Map<GenericLocation, String> serializedSaplings = new HashMap<>();
         saplingMap.forEach((location, sapling) -> {
             if (location != null) {
-                String saplingId = sapling.getId().toLowerCase(); // Convert to lowercase
+                String saplingId = sapling.getId().toLowerCase();
                 serializedSaplings.put(new GenericLocation(location), saplingId);
-                log("&aStoring sapling ID: " + saplingId + " at " + location);
             }
         });
 
         SerializableData.Farming.writeToDatabase(serializedSaplings, SAPLING_FILE);
         log("&aSaplings saved successfully. Total saved: " + serializedSaplings.size());
+    }
+
+    @SuppressWarnings("unchecked")
+    public void loadCrops(Map<String, CustomCrop> cropSets) {
+        Map<GenericLocation, CropData> loadedCrops = SerializableData.Farming.readFromDatabase(CROP_FILE, HashMap.class);
+        if (loadedCrops == null || loadedCrops.isEmpty()) {
+            log("&aNo cached crops found.");
+            return;
+        }
+
+        for (Map.Entry<GenericLocation, CropData> entry : loadedCrops.entrySet()) {
+            GenericLocation genLoc = entry.getKey();
+            CropData cropData = entry.getValue();
+            Location location = genLoc.getLocation();
+            CustomCrop crop = cropSets.get(cropData.getCropId());
+            if (location != null && crop != null) {
+                cropMap.put(location, crop);
+                growthStages.put(location, cropData.getGrowthStage());
+            }
+        }
+        log("&aCrops successfully loaded into memory: " + cropMap.size());
+    }
+
+    public void saveCrops() {
+        Map<GenericLocation, CropData> serializedCrops = new HashMap<>();
+        cropMap.forEach((loc, crop) -> {
+            int stage = growthStages.getOrDefault(loc, 1);
+            serializedCrops.put(new GenericLocation(loc), new CropData(crop.getId(), stage));
+        });
+        SerializableData.Farming.writeToDatabase(serializedCrops, CROP_FILE);
+        log("Crops saved successfully. Total saved: " + serializedCrops.size());
     }
 
     /*
@@ -103,6 +133,47 @@ public class DataManager {
 
     /*
 
+    #####################################################
+    # +-----------------------------------------------+ #
+    # |                Crop Management                | #
+    # +-----------------------------------------------+ #
+    #####################################################
+
+    */
+
+    public void addCrop(Location loc, CustomCrop crop, int stage) {
+        cropMap.put(loc, crop);
+        growthStages.put(loc, stage);
+    }
+
+    public void updateCropStage(Location loc, int stage) {
+        growthStages.put(loc, stage);
+    }
+
+    public boolean hasCrop(Location loc) {
+        return cropMap.containsKey(loc);
+    }
+
+    public CustomCrop getCrop(Location loc) {
+        return cropMap.get(loc);
+    }
+
+    public int getCropStage(Location loc) {
+        return growthStages.get(loc);
+    }
+
+    public void removeCrop(Location loc) {
+        cropMap.remove(loc);
+        growthStages.remove(loc);
+    }
+
+    // Check how many crops exist.
+    public int getCropCount() {
+        return cropMap.size();
+    }
+
+    /*
+
     #############################################
     # +---------------------------------------+ #
     # |                Logging                | #
@@ -113,8 +184,6 @@ public class DataManager {
 
     // Log messages to the console
     public static void log(String msg) {
-        Bukkit.getConsoleSender().sendMessage(Component.text("[UnitedItems] ").color(NamedTextColor.BLUE)
-                .append(Component.text(msg).color(NamedTextColor.WHITE)));
+        Bukkit.getConsoleSender().sendMessage(Component.text("[UnitedItems] " + msg).color(NamedTextColor.WHITE));
     }
-
 }

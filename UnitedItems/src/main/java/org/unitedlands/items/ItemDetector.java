@@ -28,11 +28,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.*;
+import org.unitedlands.items.crops.*;
 import org.unitedlands.items.saplings.*;
 import org.unitedlands.items.tools.*;
 import org.unitedlands.items.util.DataManager;
@@ -41,11 +43,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.unitedlands.items.util.DataManager.log;
+
 public class ItemDetector implements Listener {
 
     private final Map<String, CustomArmour> armourSets;
     private final Map<String, CustomTool> toolSets;
     private final Map<String, CustomSapling> saplingSets;
+    private final Map<String, CustomCrop> cropSets;
     private static final int ONE_YEAR_TICKS = 630720000;
     private final DataManager dataManager;
 
@@ -54,6 +59,7 @@ public class ItemDetector implements Listener {
         armourSets = new HashMap<>();
         toolSets = new HashMap<>();
         saplingSets = new HashMap<>();
+        cropSets = new HashMap<>();
         dataManager = new DataManager();
 
         armourSets.put("nutcracker", new NutcrackerArmour());
@@ -74,9 +80,14 @@ public class ItemDetector implements Listener {
         saplingSets.put("orange_sapling", new Orange());
         saplingSets.put("pear_sapling", new Pear());
 
-        dataManager.loadSaplings(saplingSets);
+        cropSets.put("onion", new Onion());
+        cropSets.put("tomato", new Tomato());
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> Bukkit.getLogger().info("DEBUG: Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
+        dataManager.loadSaplings(saplingSets);
+        dataManager.loadCrops(cropSets);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> log("Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> log("Crops in memory after load: " + dataManager.getCropCount()), 100L);
 
     }
 
@@ -381,21 +392,21 @@ public class ItemDetector implements Listener {
 
         Block clickedBlock = event.getClickedBlock();
         if (clickedBlock == null ||
-              !(clickedBlock.getType() == Material.GRASS_BLOCK ||
-                clickedBlock.getType() == Material.DIRT ||
-                clickedBlock.getType() == Material.PODZOL ||
-                clickedBlock.getType() == Material.SHORT_GRASS ||
-                clickedBlock.getType() == Material.TALL_GRASS ||
-                clickedBlock.getType() == Material.DEAD_BUSH ||
-                clickedBlock.getType() == Material.SNOW)) {
+                !(clickedBlock.getType() == Material.GRASS_BLOCK ||
+                        clickedBlock.getType() == Material.DIRT ||
+                        clickedBlock.getType() == Material.PODZOL ||
+                        clickedBlock.getType() == Material.SHORT_GRASS ||
+                        clickedBlock.getType() == Material.TALL_GRASS ||
+                        clickedBlock.getType() == Material.DEAD_BUSH ||
+                        clickedBlock.getType() == Material.SNOW)) {
             return false;
         }
 
         // Check if the clicked block is short grass or tall grass.
         if (clickedBlock.getType() == Material.SHORT_GRASS ||
-            clickedBlock.getType() == Material.TALL_GRASS ||
-            clickedBlock.getType() == Material.DEAD_BUSH ||
-            clickedBlock.getType() == Material.SNOW) {
+                clickedBlock.getType() == Material.TALL_GRASS ||
+                clickedBlock.getType() == Material.DEAD_BUSH ||
+                clickedBlock.getType() == Material.SNOW) {
             clickedBlock.setType(Material.AIR); // Remove the grass
             clickedBlock = clickedBlock.getRelative(0, -1, 0); // Get the block below/
         }
@@ -453,19 +464,19 @@ public class ItemDetector implements Listener {
                         Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () ->
                                 blockLocation.getBlock().setType(sapling.getStemBlock()), 5L);
                     } else if (sapling.getStemReplaceBlockName() != null) {
-                            CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
-                            if (placedBlock == null) {
-                                blockLocation.getBlock().setType(sapling.getStemBlock());
-                            }
+                        CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
+                        if (placedBlock == null) {
+                            blockLocation.getBlock().setType(sapling.getStemBlock());
+                        }
                     }
                 }
 
                 // Create the leaves.
                 else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
                     if (sapling.getCustomLeavesName() != null) {
-                            blockLocation.getBlock().setType(Material.AIR);
-                            String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
-                            CustomBlock.place(leafType, blockLocation);
+                        blockLocation.getBlock().setType(Material.AIR);
+                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
+                        CustomBlock.place(leafType, blockLocation);
                     }
                 }
             }
@@ -492,8 +503,124 @@ public class ItemDetector implements Listener {
         }
     }
 
-    public void saveData() {
-        dataManager.saveSaplings();
+    /*
+
+    ###################################################
+    # +---------------------------------------------+ #
+    # |                Crop Handling                | #
+    # +---------------------------------------------+ #
+    ###################################################
+
+    This section contains all methods and events related to crop handling.
+
+     */
+
+    // Detect if a crop is custom and what it is.
+    public CustomCrop detectCrop(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return null;
+        CustomStack customStack = CustomStack.byItemStack(item);
+
+        if (customStack == null) return null;
+
+        // Check if item is a seed instead of a fully-grown crop.
+        for (CustomCrop crop : cropSets.values()) {
+            if (customStack.getId().equalsIgnoreCase(crop.getSeedItemId())) {
+                return crop; // Return the crop that corresponds to this seed.
+            }
+        }
+        return null;
+    }
+
+    // Main method to handle crop interactions.
+    public boolean handleCropInteraction(PlayerInteractEvent event) {
+        // Only process the event from the main hand to prevent double handling.
+        // This fixes a bug that causes a crop harvest when bonemealing at stage 3 growth.
+        if (event.getHand() != EquipmentSlot.HAND) return false;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return false;
+
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null) return false;
+
+        Location loc = clickedBlock.getLocation();
+
+        // First, check if the block is a registered crop.
+        if (dataManager.hasCrop(loc)) {
+            CustomCrop growingCrop = dataManager.getCrop(loc);
+            int growthStage = dataManager.getCropStage(loc);
+
+            ItemStack heldItem = event.getItem();
+            boolean isHoldingBonemeal = heldItem != null && heldItem.getType() == Material.BONE_MEAL;
+
+            // Simulate bonemeal growth if holding bonemeal.
+            if (isHoldingBonemeal) {
+                if (growthStage < growingCrop.getMaxGrowthStage()) {
+                    int newStage = growthStage + 1;
+                    growingCrop.placeCrop(loc, newStage);
+                    dataManager.updateCropStage(loc, newStage);
+                    heldItem.setAmount(heldItem.getAmount() - 1);
+                    loc.getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER, loc.clone().add(0.5, 0.5, 0.5), 10, 0.3, 0.3, 0.3);
+                    loc.getWorld().playSound(loc, org.bukkit.Sound.ITEM_BONE_MEAL_USE, 1.0f, 1.0f);
+                    event.setCancelled(true);
+                    return true;
+                }
+
+                // If fully grown, cancel the bonemeal and harvest instead.
+                growingCrop.harvestWithoutBreaking(loc, event.getPlayer(), dataManager);
+                growingCrop.placeCrop(loc, 1);
+                dataManager.updateCropStage(loc, 1);
+                growingCrop.startRandomGrowthTask(loc, dataManager);
+                event.setCancelled(true);
+                return true;
+            }
+
+            // Handle right-clicks when not holding bonemeal (all other situations).
+            if (growingCrop.canBeHarvestedWithoutBreaking() && growthStage == growingCrop.getMaxGrowthStage()) {
+                growingCrop.harvestWithoutBreaking(loc, event.getPlayer(), dataManager);
+                growingCrop.placeCrop(loc, 1);
+                dataManager.updateCropStage(loc, 1);
+                growingCrop.startRandomGrowthTask(loc, dataManager);
+                event.setCancelled(true);
+                return true;
+            }
+        }
+
+        // Handle planting new crops.
+        CustomCrop crop = detectCrop(event.getItem());
+        if (crop == null) return false;
+
+        if (!crop.canBePlantedOn(clickedBlock.getType())) return false;
+        Block above = clickedBlock.getRelative(0, 1, 0);
+        if (!above.getType().equals(Material.AIR)) return false;
+
+        crop.placeCrop(above.getLocation(), 1);
+        dataManager.addCrop(above.getLocation(), crop, 1);
+        above.getWorld().playSound(above.getLocation(), org.bukkit.Sound.ITEM_CROP_PLANT, 1.0f, 1.0f);
+        crop.startRandomGrowthTask(above.getLocation(), dataManager);
+
+        Objects.requireNonNull(event.getItem()).setAmount(event.getItem().getAmount() - 1);
+        event.setCancelled(true);
+
+        return true;
+    }
+
+    @EventHandler
+    // Handle breaking crops.
+    public void onCropBreak(BlockBreakEvent event) {
+        Location loc = event.getBlock().getLocation();
+        if (!dataManager.hasCrop(loc)) return;
+        Player player = event.getPlayer();
+        CustomCrop crop = dataManager.getCrop(loc);
+        int growthStage = dataManager.getCropStage(loc);
+
+        // If fully grown, harvest it.
+        if (crop.isFullyGrown(growthStage)) {
+            crop.onHarvest(loc, player);
+            dataManager.removeCrop(loc);
+        } else {
+            // Otherwise, break the crop.
+            dataManager.removeCrop(loc);
+            loc.getBlock().setType(Material.AIR);
+        }
     }
 
     /*
@@ -508,13 +635,20 @@ public class ItemDetector implements Listener {
 
      */
 
+    public void saveData() {
+        dataManager.saveSaplings();
+        dataManager.saveCrops();
+    }
+
     @EventHandler
     // Check block interactions for use of custom items.
     public void handleInteract(PlayerInteractEvent event) {
         // Check if it's a sapling first.
-        if (handleSaplingInteraction(event)) {
+        if (handleSaplingInteraction(event))
             return;
-        }
+        // Then check if it's a crop.
+        if (handleCropInteraction(event))
+            return;
         // Continue to tool processing.
         Player player = event.getPlayer();
         CustomTool tool = detectTool(player);
@@ -522,5 +656,4 @@ public class ItemDetector implements Listener {
             tool.handleInteract(player, event);
         }
     }
-
 }
