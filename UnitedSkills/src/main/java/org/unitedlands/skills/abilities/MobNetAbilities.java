@@ -193,6 +193,7 @@ public class MobNetAbilities implements Listener {
         Integer age = NBT.get(mob, nbt -> (Integer) nbt.getInteger("Age"));
         String variant = NBT.get(mob, nbt -> (String) nbt.getString("variant"));
         Integer variant2 = NBT.get(mob, nbt -> (Integer) nbt.getInteger("Variant"));
+        String mtype = NBT.get(mob, nbt -> (String) nbt.getString("Type"));
         Byte collarColor = NBT.get(mob, nbt -> (Byte) nbt.getByte("CollarColor"));
         int[] owner = NBT.get(mob, nbt -> (int[]) nbt.getIntArray("Owner"));
         Byte tame = NBT.get(mob, nbt -> (Byte) nbt.getByte("Tame"));
@@ -203,6 +204,7 @@ public class MobNetAbilities implements Listener {
             nbt.setInteger("ulc_age", age);
             nbt.setString("ulc_variant", variant);
             nbt.setInteger("ulc_variant2", variant2);
+            nbt.setString("ulc_mtype", mtype);
             nbt.setByte("ulc_collarColor", collarColor);
             nbt.setIntArray("ulc_owner", owner);
             nbt.setByte("ulc_tame", tame);
@@ -291,6 +293,7 @@ public class MobNetAbilities implements Listener {
                 Integer age = NBT.get(itemInHand, nbt -> (Integer) nbt.getInteger("ulc_age"));
                 String variant = NBT.get(itemInHand, nbt -> (String) nbt.getString("ulc_variant"));
                 Integer variant2 = NBT.get(itemInHand, nbt -> (Integer) nbt.getInteger("ulc_variant2"));
+                String mtype = NBT.get(itemInHand, nbt -> (String) nbt.getString("ulc_mtype"));
                 Byte collarColor = NBT.get(itemInHand, nbt -> (Byte) nbt.getByte("ulc_collarColor"));
                 int[] owner = NBT.get(itemInHand, nbt -> (int[]) nbt.getIntArray("ulc_owner"));
                 Byte tame = NBT.get(itemInHand, nbt -> (Byte) nbt.getByte("ulc_tame"));
@@ -304,6 +307,8 @@ public class MobNetAbilities implements Listener {
                         nbt.setString("variant", variant);
                     if (variant2 != null)
                         nbt.setInteger("Variant", variant2);
+                    if (mtype != null && mtype != "")
+                        nbt.setString("Type", mtype);
                     if (collarColor != null)
                         nbt.setByte("CollarColor", collarColor);
                     if (owner != null)
