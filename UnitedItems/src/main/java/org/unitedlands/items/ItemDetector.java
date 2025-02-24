@@ -80,7 +80,16 @@ public class ItemDetector implements Listener {
         saplingSets.put("orange_sapling", new Orange());
         saplingSets.put("pear_sapling", new Pear());
 
+        cropSets.put("bellpepper", new BellPepper());
+        cropSets.put("broccoli", new Broccoli());
+        cropSets.put("celery", new Celery());
+        cropSets.put("chilipepper", new ChiliPepper());
+        cropSets.put("cucumber", new Cucumber());
+        cropSets.put("garlic", new Garlic());
+        cropSets.put("lettuce", new Lettuce());
         cropSets.put("onion", new Onion());
+        cropSets.put("pea", new Pea());
+        cropSets.put("soybean", new SoyBean());
         cropSets.put("tomato", new Tomato());
 
         dataManager.loadSaplings(saplingSets);
@@ -569,6 +578,7 @@ public class ItemDetector implements Listener {
                 growingCrop.placeCrop(loc, 1);
                 dataManager.updateCropStage(loc, 1);
                 growingCrop.startRandomGrowthTask(loc, dataManager);
+                loc.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_CROP_BREAK, 1.0f, 1.0f);
                 event.setCancelled(true);
                 return true;
             }
