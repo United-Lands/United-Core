@@ -8,14 +8,14 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Set;
 
-public class SoyBean extends CustomCrop {
+public class Corn extends CustomCrop {
 
-    public SoyBean() {
-        super("soybean",
-                List.of("soy_beans_stage_1", "soy_beans_stage_2", "soy_beans_stage_3"),
-                "soy_beans_stage_4",
+    public Corn() {
+        super("corn",
+                List.of("corn_stage_1", "corn_stage_2", "corn_stage_3"),
+                "corn_stage_4",
                 Set.of(Material.FARMLAND),
-                "soy_bean_seeds",
+                "corn_seeds",
                 Set.of(),
                 false
         );
