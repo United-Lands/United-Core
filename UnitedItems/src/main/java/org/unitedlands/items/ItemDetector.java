@@ -81,15 +81,23 @@ public class ItemDetector implements Listener {
         saplingSets.put("pear_sapling", new Pear());
 
         cropSets.put("bellpepper", new BellPepper());
+        cropSets.put("blueberry", new Blueberry());
         cropSets.put("broccoli", new Broccoli());
         cropSets.put("celery", new Celery());
         cropSets.put("chilipepper", new ChiliPepper());
+        cropSets.put("corn", new Corn());
         cropSets.put("cucumber", new Cucumber());
         cropSets.put("garlic", new Garlic());
+        cropSets.put("grapes", new Grapes());
         cropSets.put("lettuce", new Lettuce());
         cropSets.put("onion", new Onion());
         cropSets.put("pea", new Pea());
+        cropSets.put("peanut", new Peanut());
+        cropSets.put("pineapple", new Pineapple());
+        cropSets.put("raspberry", new Raspberry());
+        cropSets.put("rice", new Rice());
         cropSets.put("soybean", new SoyBean());
+        cropSets.put("strawberry", new Strawberry());
         cropSets.put("tomato", new Tomato());
 
         dataManager.loadSaplings(saplingSets);

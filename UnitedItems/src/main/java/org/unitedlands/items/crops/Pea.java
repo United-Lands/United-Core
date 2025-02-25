@@ -1,5 +1,6 @@
 package org.unitedlands.items.crops;
 
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +29,10 @@ public class Pea extends CustomCrop {
 
     @Override
     public List<ItemStack> getHarvestDrops() {
-        return List.of(new ItemStack(Material.DIRT, 4));
+        CustomStack customStack = CustomStack.getInstance("food:peas");
+        ItemStack customItem = customStack.getItemStack();
+        customItem.setAmount(3);
+        return List.of(customItem);
     }
 
     @Override

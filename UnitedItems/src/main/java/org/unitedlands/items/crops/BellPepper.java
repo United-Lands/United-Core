@@ -1,5 +1,6 @@
 package org.unitedlands.items.crops;
 
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +29,10 @@ public class BellPepper extends CustomCrop {
 
     @Override
     public List<ItemStack> getHarvestDrops() {
-        return List.of(new ItemStack(Material.DIRT, 4));
+        CustomStack customStack = CustomStack.getInstance("food:bell_pepper");
+            ItemStack customItem = customStack.getItemStack();
+            customItem.setAmount(2);
+            return List.of(customItem);
     }
 
     @Override

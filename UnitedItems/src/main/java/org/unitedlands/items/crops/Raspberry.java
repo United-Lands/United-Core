@@ -9,16 +9,16 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Set;
 
-public class Garlic extends CustomCrop {
+public class Raspberry extends CustomCrop {
 
-    public Garlic() {
-        super("garlic",
-                List.of("garlic_stage_1", "garlic_stage_2", "garlic_stage_3"),
-                "garlic_stage_4",
+    public Raspberry() {
+        super("raspberry",
+                List.of("raspberry_stage_1", "raspberry_stage_2", "raspberry_stage_3"),
+                "raspberry_stage_4",
                 Set.of(Material.FARMLAND),
-                "garlic",
+                "raspberry_seeds",
                 Set.of(),
-                false
+                true
         );
     }
 
@@ -29,9 +29,9 @@ public class Garlic extends CustomCrop {
 
     @Override
     public List<ItemStack> getHarvestDrops() {
-        CustomStack customStack = CustomStack.getInstance("food:garlic");
+        CustomStack customStack = CustomStack.getInstance("food:raspberry");
         ItemStack customItem = customStack.getItemStack();
-        customItem.setAmount(2);
+        customItem.setAmount(3);
         return List.of(customItem);
     }
 

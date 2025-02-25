@@ -1,5 +1,6 @@
 package org.unitedlands.items.crops;
 
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,8 +13,8 @@ public class SoyBean extends CustomCrop {
 
     public SoyBean() {
         super("soybean",
-                List.of("soy_bean_stage_1", "soy_bean_stage_2", "soy_bean_stage_3"),
-                "soy_bean_stage_4",
+                List.of("soy_beans_stage_1", "soy_beans_stage_2", "soy_beans_stage_3"),
+                "soy_beans_stage_4",
                 Set.of(Material.FARMLAND),
                 "soy_bean_seeds",
                 Set.of(),
@@ -28,7 +29,10 @@ public class SoyBean extends CustomCrop {
 
     @Override
     public List<ItemStack> getHarvestDrops() {
-        return List.of(new ItemStack(Material.DIRT, 4));
+        CustomStack customStack = CustomStack.getInstance("food:soy_beans");
+        ItemStack customItem = customStack.getItemStack();
+        customItem.setAmount(3);
+        return List.of(customItem);
     }
 
     @Override
