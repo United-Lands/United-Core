@@ -1,5 +1,6 @@
 package org.unitedlands.pvp.listeners;
 
+import com.google.common.collect.Multimap;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.event.player.PlayerKilledPlayerEvent;
 import com.palmergames.bukkit.towny.object.Nation;
@@ -8,11 +9,16 @@ import com.palmergames.bukkit.towny.object.Town;
 import de.jeff_media.angelchest.AngelChest;
 import de.jeff_media.angelchest.events.AngelChestSpawnEvent;
 import net.kyori.adventure.text.TextReplacementConfig;
-import org.apache.commons.lang.time.DurationFormatUtils;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Registry;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EnderCrystal;
@@ -29,7 +35,10 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.ItemStack;
 import org.unitedlands.pvp.UnitedPvP;
 import org.unitedlands.pvp.player.PvpPlayer;
 import org.unitedlands.pvp.util.Utils;
@@ -38,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
 
 public class PlayerListener implements Listener {
     private final UnitedPvP unitedPvP;
@@ -64,7 +72,8 @@ public class PlayerListener implements Listener {
         long lastChangeTime = pvpPlayer.getLastHostilityChangeTime();
         int dayDifference = getDaysPassed(lastChangeTime);
 
-        if (dayDifference == 0) return;
+        if (dayDifference == 0)
+            return;
 
         // Update the hostility for each full day we log.
         for (int i = 0; i < dayDifference; i++) {
@@ -76,10 +85,12 @@ public class PlayerListener implements Listener {
     private void tryNeutralityRemoval(Player player) {
         Town town = towny.getResident(player.getUniqueId()).getTownOrNull();
         // Player doesn't have a town
-        if (town == null) return;
+        if (town == null)
+            return;
         PvpPlayer pvpPlayer = new PvpPlayer(player);
         // Method was called, but player in question was not hostile.
-        if (!pvpPlayer.isHostile() || !pvpPlayer.isAggressive()) return;
+        if (!pvpPlayer.isHostile() || !pvpPlayer.isAggressive())
+            return;
 
         // Kick them out and notify them
         if (town.isNeutral()) {
@@ -122,7 +133,8 @@ public class PlayerListener implements Listener {
                 event.setCancelled(true);
                 TextReplacementConfig timeReplacer = TextReplacementConfig.builder()
                         .match("<time>")
-                        .replacement(DurationFormatUtils.formatDuration( TimeUnit.DAYS.toMillis(1) - pvpDamager.getImmunityTime(), "HH:mm:ss"))
+                        .replacement(DurationFormatUtils
+                                .formatDuration(TimeUnit.DAYS.toMillis(1) - pvpDamager.getImmunityTime(), "HH:mm:ss"))
                         .build();
                 damager.sendMessage(Utils.getMessage("you-are-immune").replaceText(timeReplacer));
             }
@@ -136,7 +148,8 @@ public class PlayerListener implements Listener {
 
         PvpPlayer killerPvP = new PvpPlayer(killer);
         PvpPlayer victimPvP = new PvpPlayer(victim);
-        // If both players are town mates or nation mates, it was likely just a small quarrel or a duel
+        // If both players are town mates or nation mates, it was likely just a small
+        // quarrel or a duel
         // No need to do anything.
         if (areRelated(killer, victim))
             return;
@@ -169,7 +182,8 @@ public class PlayerListener implements Listener {
         var victimRes = event.getVictimRes();
 
         var killerTown = killerRes.getTownOrNull();
-        if (killerTown == null) return false;
+        if (killerTown == null)
+            return false;
 
         return killerTown.hasOutlaw(victimRes);
     }
@@ -185,23 +199,28 @@ public class PlayerListener implements Listener {
 
     private boolean isInOutlawTown(OfflinePlayer player, Location graveLocation) {
         Resident resident = towny.getResident(player.getUniqueId());
-        if (resident == null) return false;
+        if (resident == null)
+            return false;
         // Make sure they're not in the wilderness
-        if (towny.isWilderness(graveLocation)) return false;
+        if (towny.isWilderness(graveLocation))
+            return false;
         Town town = towny.getTownBlock(graveLocation).getTownOrNull();
         // This shouldn't happen but adding it to be safe.
-        if (town == null) return false;
+        if (town == null)
+            return false;
 
         return town.hasOutlaw(resident);
     }
 
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
-        if (!event.getClickedBlock().getType().equals(Material.OBSIDIAN)) return;
+        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK))
+            return;
+        if (!event.getClickedBlock().getType().equals(Material.OBSIDIAN))
+            return;
         // The player clicked an obsidian but didn't have a crystal
-        if (!event.getMaterial().equals(Material.END_CRYSTAL)) return;
+        if (!event.getMaterial().equals(Material.END_CRYSTAL))
+            return;
 
         Bukkit.getScheduler().runTask(unitedPvP, () -> {
             List<Entity> entities = event.getPlayer().getNearbyEntities(4, 4, 4);
@@ -209,7 +228,8 @@ public class PlayerListener implements Listener {
                 // Get the nearest crystal
                 if (entity instanceof EnderCrystal crystal) {
                     Block belowCrystal = crystal.getLocation().getBlock().getRelative(BlockFace.DOWN);
-                    // Check if the block below the newly spawned crystal is the same as the block the player
+                    // Check if the block below the newly spawned crystal is the same as the block
+                    // the player
                     // clicked in the event.
                     if (event.getClickedBlock().equals(belowCrystal)) {
                         // Save it.
@@ -225,12 +245,15 @@ public class PlayerListener implements Listener {
     public void onPlayerDeathByCrystal(PlayerDeathEvent event) {
         if (event.getEntity() instanceof EnderCrystal crystal) {
             // This crystal is not registered.
-            if (!crystalMap.containsKey(crystal)) return;
+            if (!crystalMap.containsKey(crystal))
+                return;
             Player originalPlacer = Bukkit.getPlayer(crystalMap.get(crystal));
             // Player might be null
-            if (originalPlacer == null) return;
+            if (originalPlacer == null)
+                return;
             // Player might've killed themselves by accident, don't do anything;
-            if (originalPlacer.equals(event.getPlayer())) return;
+            if (originalPlacer.equals(event.getPlayer()))
+                return;
 
             // Increase the hostility of whoever placed the crystal.
             PvpPlayer pvpPlacer = new PvpPlayer(originalPlacer);
@@ -241,14 +264,16 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onCrystalExplode(EntityCombustEvent event) {
         if (event.getEntity() instanceof EnderCrystal crystal) {
-            // Remove the crystal from the map a second after it explodes, to have time to detect player deaths etc.
+            // Remove the crystal from the map a second after it explodes, to have time to
+            // detect player deaths etc.
             unitedPvP.getServer().getScheduler().runTaskLater(unitedPvP, () -> crystalMap.remove(crystal), 20L);
         }
     }
 
     @EventHandler
     public void onLavaPlace(PlayerBucketEmptyEvent event) {
-        if (!event.getBucket().equals(Material.LAVA_BUCKET)) return;
+        if (!event.getBucket().equals(Material.LAVA_BUCKET))
+            return;
         Player player = event.getPlayer();
         var nearby = event.getBlock().getLocation().getNearbyEntities(2, 2, 2);
         for (Entity entity : nearby) {
@@ -264,8 +289,10 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onArrowShoot(EntityShootBowEvent event) {
-        if (!(event.getProjectile() instanceof Arrow arrow)) return;
-        if(arrow.getCustomEffects().size() > 1) arrow.clearCustomEffects();
+        if (!(event.getProjectile() instanceof Arrow arrow))
+            return;
+        if (arrow.getCustomEffects().size() > 1)
+            arrow.clearCustomEffects();
     }
 
     private Player getAttacker(Entity damager) {
@@ -287,11 +314,54 @@ public class PlayerListener implements Listener {
     private boolean areRelated(Player first, Player second) {
         var firstTown = towny.getResident(first).getTownOrNull();
         var secondTown = towny.getResident(second).getTownOrNull();
-        if (firstTown == null || secondTown == null) return false;
+        if (firstTown == null || secondTown == null)
+            return false;
         if (firstTown.hasNation() && secondTown.hasNation()) {
             return firstTown.getNationOrNull().equals(secondTown.getNationOrNull());
         }
         return firstTown.equals(secondTown);
+    }
+
+    // Hit swap fix (taken from https://github.com/AutumnVN/hit-swap-fix/)
+
+    // Listens to changes to the item held by a player and refreshes attributes to
+    // prevent the exploit in bug MC-28289
+
+    @EventHandler
+    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
+        if (event.getNewSlot() >= 0 && event.getNewSlot() < 9 && event.getNewSlot() != event.getPreviousSlot()) {
+            event.getPlayer().resetCooldown();
+            refreshAttributes(event.getPlayer(), event.getPlayer().getInventory().getItem(event.getNewSlot()));
+        }
+    }
+
+    @EventHandler
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        event.getPlayer().resetCooldown();
+        refreshAttributes(event.getPlayer(), event.getMainHandItem());
+    }
+
+    private void refreshAttributes(Player player, ItemStack itemStack) {
+        if (itemStack == null)
+            return;
+
+        Multimap<Attribute, AttributeModifier> itemModifiers;
+
+        if (itemStack.getItemMeta() != null && itemStack.getItemMeta().getAttributeModifiers() != null) {
+            itemModifiers = itemStack.getItemMeta().getAttributeModifiers();
+        } else {
+            itemModifiers = itemStack.getType().getDefaultAttributeModifiers();
+        }
+
+        for (Attribute attribute : Registry.ATTRIBUTE) {
+            AttributeInstance attributeInstance = player.getAttribute(attribute);
+            if (attributeInstance != null) {
+                itemModifiers.get(attribute).stream().findFirst().ifPresent(modifier -> {
+                    attributeInstance.removeModifier(modifier);
+                    attributeInstance.addTransientModifier(modifier);
+                });
+            }
+        }
     }
 
 }
