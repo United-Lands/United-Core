@@ -2,6 +2,15 @@ package org.unitedlands.items;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
+
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
@@ -45,6 +54,8 @@ import java.util.Objects;
 
 public class ItemDetector implements Listener {
 
+    private final Plugin plugin;
+
     private final Map<String, CustomArmour> armourSets;
     private final Map<String, CustomTool> toolSets;
     private final Map<String, CustomSapling> saplingSets;
@@ -52,6 +63,7 @@ public class ItemDetector implements Listener {
     private static final int ONE_YEAR_TICKS = 630720000;
 
     public ItemDetector(Plugin plugin) {
+        this.plugin = plugin;
         FileConfiguration config = plugin.getConfig();
         armourSets = new HashMap<>();
         toolSets = new HashMap<>();
@@ -62,7 +74,7 @@ public class ItemDetector implements Listener {
 
         toolSets.put("gamemaster", new GamemasterTools(plugin, config));
         toolSets.put("amethyst", new AmethystPickaxe());
-        toolSets.put("barkbinder", new BarkbinderAxe());
+        toolSets.put("barkbinder", new BarkbinderAxe(plugin));
 
         saplingSets.put("ancient_oak_sapling", new AncientOak());
         saplingSets.put("avocado_sapling", new Avocado());
@@ -97,7 +109,8 @@ public class ItemDetector implements Listener {
     }
 
     // Check if all pieces of the set match the given setId.
-    private boolean isFullSet(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots, String setId) {
+    private boolean isFullSet(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots,
+            String setId) {
         return isCustomArmourPiece(helmet, setId) &&
                 isCustomArmourPiece(chestplate, setId) &&
                 isCustomArmourPiece(leggings, setId) &&
@@ -224,7 +237,8 @@ public class ItemDetector implements Listener {
 
     @SuppressWarnings("unchecked")
     public void loadSaplings() {
-        HashMap<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase("sapling.dat", HashMap.class);
+        HashMap<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase("sapling.dat",
+                HashMap.class);
         if (loadedSaplings == null || loadedSaplings.isEmpty()) {
             Logger.log("&aNo cached saplings found.");
             return;
@@ -272,28 +286,33 @@ public class ItemDetector implements Listener {
         }
 
         Block clickedBlock = event.getClickedBlock();
+
+        if (!playerHasPermissions(event.getPlayer(), clickedBlock))
+            return false;
+
         if (clickedBlock == null ||
-              !(clickedBlock.getType() == Material.GRASS_BLOCK ||
-                clickedBlock.getType() == Material.DIRT ||
-                clickedBlock.getType() == Material.PODZOL ||
-                clickedBlock.getType() == Material.SHORT_GRASS ||
-                clickedBlock.getType() == Material.TALL_GRASS ||
-                clickedBlock.getType() == Material.DEAD_BUSH ||
-                clickedBlock.getType() == Material.SNOW)) {
+                !(clickedBlock.getType() == Material.GRASS_BLOCK ||
+                        clickedBlock.getType() == Material.DIRT ||
+                        clickedBlock.getType() == Material.PODZOL ||
+                        clickedBlock.getType() == Material.SHORT_GRASS ||
+                        clickedBlock.getType() == Material.TALL_GRASS ||
+                        clickedBlock.getType() == Material.DEAD_BUSH ||
+                        clickedBlock.getType() == Material.SNOW)) {
             return false;
         }
 
         // Check if the clicked block is short grass or tall grass.
         if (clickedBlock.getType() == Material.SHORT_GRASS ||
-            clickedBlock.getType() == Material.TALL_GRASS ||
-            clickedBlock.getType() == Material.DEAD_BUSH ||
-            clickedBlock.getType() == Material.SNOW) {
+                clickedBlock.getType() == Material.TALL_GRASS ||
+                clickedBlock.getType() == Material.DEAD_BUSH ||
+                clickedBlock.getType() == Material.SNOW) {
             clickedBlock.setType(Material.AIR); // Remove the grass
             clickedBlock = clickedBlock.getRelative(0, -1, 0); // Get the block below/
         }
 
         // Ensure sapling can only be planted on valid ground.
-        if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT || clickedBlock.getType() == Material.PODZOL)) {
+        if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT
+                || clickedBlock.getType() == Material.PODZOL)) {
             return false;
         }
 
@@ -327,6 +346,8 @@ public class ItemDetector implements Listener {
         CustomTool tool = detectTool(player);
         // Delegate the block breaking logic to the specific tool.
         if (tool != null) {
+            if (!playerHasPermissions(player, event.getBlock()))
+                return;
             tool.handleBlockBreak(player, event);
         }
     }
@@ -342,6 +363,8 @@ public class ItemDetector implements Listener {
         Player player = event.getPlayer();
         CustomTool tool = detectTool(player);
         if (tool != null) {
+            if (!playerHasPermissions(player, event.getClickedBlock()))
+                return;
             tool.handleInteract(player, event);
         }
     }
@@ -384,7 +407,8 @@ public class ItemDetector implements Listener {
     // Handle armour changes.
     public void onPlayerArmorChange(PlayerArmorChangeEvent event) {
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                () -> applyEffectsIfWearingArmor(player));
     }
 
     @EventHandler
@@ -396,18 +420,20 @@ public class ItemDetector implements Listener {
     @EventHandler
     // Check if tools has been moved when interacting with the inventory.
     public void onInventoryClick(InventoryClickEvent event) {
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> {
-            if (event.getWhoClicked() instanceof Player player) {
-                applyEffectsIfHoldingTool(player);
-            }
-        });
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                () -> {
+                    if (event.getWhoClicked() instanceof Player player) {
+                        applyEffectsIfHoldingTool(player);
+                    }
+                });
     }
 
     @EventHandler
     // Check if the armour has broken when taking damage.
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
-            Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
+            Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                    () -> applyEffectsIfWearingArmor(player));
         }
     }
 
@@ -416,14 +442,16 @@ public class ItemDetector implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         detectArmourSet(player);
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeAllEffects(player));
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                () -> removeAllEffects(player));
     }
 
     @EventHandler
     // Checks when a player switches their held item.
     public void onPlayerItemHeld(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                () -> applyEffectsIfHoldingTool(player));
     }
 
     @EventHandler
@@ -435,7 +463,9 @@ public class ItemDetector implements Listener {
             String toolId = entry.getKey();
             if (isCustomTool(droppedItem, toolId)) {
                 // If the dropped item is a registered tool, remove its effects.
-                Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeToolEffects(player));
+                Bukkit.getScheduler().runTask(
+                        Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                        () -> removeToolEffects(player));
                 break; // Stop checking further since the tool has been identified.
             }
         }
@@ -452,7 +482,9 @@ public class ItemDetector implements Listener {
                 String toolId = entry.getKey();
                 if (isCustomTool(pickedUpItem, toolId)) {
                     // If the picked up item is a registered tool, apply its effects.
-                    Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
+                    Bukkit.getScheduler().runTask(
+                            Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                            () -> applyEffectsIfHoldingTool(player));
                     break; // Stop checking further since the tool has been identified.
                 }
             }
@@ -494,7 +526,8 @@ public class ItemDetector implements Listener {
                         block.setType(Material.AIR); // Remove vanilla leaves first
 
                         // Get defined fruited block.
-                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
+                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName()
+                                : sapling.getCustomLeavesName();
                         CustomBlock.place(leafType, blockLocation);
                     }
                 }
@@ -515,4 +548,56 @@ public class ItemDetector implements Listener {
     public void onTreeBlockBreak(BlockBreakEvent event) {
         removeMappedLocation(event.getBlock().getLocation());
     }
+
+    // Checks if a tool interaction is in a location where the player should not be
+    // allowed to interact.
+    private boolean playerHasPermissions(Player player, Block block) {
+
+        if (block == null)
+            return false;
+
+        // TOWNY CHECKS
+
+        // Actions are only allowed in the wilderness, the player's own town, or plots
+        // where the player is trusted.
+        var towny = TownyAPI.getInstance();
+        if (towny != null) {
+            var location = block.getLocation();
+            // Action is allowed by default, only perform checks when in a town.
+            if (!towny.isWilderness(location)) {
+                var town = towny.getTown(location);
+                var resident = TownyAPI.getInstance().getResident(player);
+                if (town != null && resident != null) {
+                    // Only check further in non-ruined towns
+                    if (!town.isRuined()) {
+                        // If player is not in their own town, check the trust list
+                        if (!resident.hasTown() || (resident.hasTown() && !resident.getTownOrNull().equals(town))) {
+                            var trustList = town.getTrustedResidents();
+                            if (!trustList.contains(resident)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // WORLDGUARD CHECKS
+
+        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+
+        // Check if the player is allowed to bypass WorldGuard protection in this world
+        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld()))
+            return true;
+
+        var loc = BukkitAdapter.adapt(block.getLocation());
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionQuery query = container.createQuery();
+
+        if (!query.testState(loc, localPlayer, Flags.BUILD))
+            return false;
+
+        return true;
+    }
+
 }
