@@ -85,6 +85,7 @@ public class ItemDetector implements Listener {
         cropSets.put("broccoli", new Broccoli());
         cropSets.put("celery", new Celery());
         cropSets.put("chilipepper", new ChiliPepper());
+        cropSets.put("coffeeplant", new CoffeePlant());
         cropSets.put("corn", new Corn());
         cropSets.put("cucumber", new Cucumber());
         cropSets.put("garlic", new Garlic());
