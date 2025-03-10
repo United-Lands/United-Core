@@ -14,6 +14,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -550,9 +551,10 @@ public class ItemDetector implements Listener {
     }
 
     // Main method to handle crop interactions.
+    // Prioritise event to ensure proper persistent harvesting logic.
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public boolean handleCropInteraction(PlayerInteractEvent event) {
         // Only process the event from the main hand to prevent double handling.
-        // This fixes a bug that causes a crop harvest when bonemealing at stage 3 growth.
         if (event.getHand() != EquipmentSlot.HAND) return false;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return false;
 
@@ -561,15 +563,22 @@ public class ItemDetector implements Listener {
 
         Location loc = clickedBlock.getLocation();
 
-        // First, check if the block is a registered crop.
+        // If this block is a registered crop...
         if (dataManager.hasCrop(loc)) {
             CustomCrop growingCrop = dataManager.getCrop(loc);
             int growthStage = dataManager.getCropStage(loc);
 
+            // If the crop is fully grown but persistent harvest is disabled,
+            // cancel the event immediately so nothing happens.
+            if (growthStage == growingCrop.getMaxGrowthStage() && !growingCrop.canBeHarvestedWithoutBreaking()) {
+                event.setCancelled(true);
+                return true;
+            }
+
             ItemStack heldItem = event.getItem();
             boolean isHoldingBonemeal = heldItem != null && heldItem.getType() == Material.BONE_MEAL;
 
-            // Simulate bonemeal growth if holding bonemeal.
+            // Handle bonemeal usage.
             if (isHoldingBonemeal) {
                 if (growthStage < growingCrop.getMaxGrowthStage()) {
                     int newStage = growthStage + 1;
@@ -581,19 +590,20 @@ public class ItemDetector implements Listener {
                     event.setCancelled(true);
                     return true;
                 }
-
-                // If fully grown, cancel the bonemeal and harvest instead.
-                growingCrop.harvestWithoutBreaking(loc, event.getPlayer(), dataManager);
-                growingCrop.placeCrop(loc, 1);
-                dataManager.updateCropStage(loc, 1);
-                growingCrop.startRandomGrowthTask(loc, dataManager);
-                loc.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_CROP_BREAK, 1.0f, 1.0f);
-                event.setCancelled(true);
-                return true;
+                // If bonemeal is applied on a fully grown crop and persistent harvest is enabled, harvest it.
+                if (growthStage == growingCrop.getMaxGrowthStage() && growingCrop.canBeHarvestedWithoutBreaking()) {
+                    growingCrop.harvestWithoutBreaking(loc, event.getPlayer(), dataManager);
+                    growingCrop.placeCrop(loc, 1);
+                    dataManager.updateCropStage(loc, 1);
+                    growingCrop.startRandomGrowthTask(loc, dataManager);
+                    loc.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_CROP_BREAK, 1.0f, 1.0f);
+                    event.setCancelled(true);
+                    return true;
+                }
             }
 
-            // Handle right-clicks when not holding bonemeal (all other situations).
-            if (growingCrop.canBeHarvestedWithoutBreaking() && growthStage == growingCrop.getMaxGrowthStage()) {
+            // If not holding bonemeal and the crop is fully grown and harvestable, process harvest.
+            if (growthStage == growingCrop.getMaxGrowthStage() && growingCrop.canBeHarvestedWithoutBreaking()) {
                 growingCrop.harvestWithoutBreaking(loc, event.getPlayer(), dataManager);
                 growingCrop.placeCrop(loc, 1);
                 dataManager.updateCropStage(loc, 1);
@@ -618,7 +628,6 @@ public class ItemDetector implements Listener {
 
         Objects.requireNonNull(event.getItem()).setAmount(event.getItem().getAmount() - 1);
         event.setCancelled(true);
-
         return true;
     }
 
