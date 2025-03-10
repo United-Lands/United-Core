@@ -18,6 +18,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -554,8 +555,14 @@ public class ItemDetector implements Listener {
     // Prioritise event to ensure proper persistent harvesting logic.
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public boolean handleCropInteraction(PlayerInteractEvent event) {
-        // Only process the event from the main hand to prevent double handling.
-        if (event.getHand() != EquipmentSlot.HAND) return false;
+        if (event.getHand() == EquipmentSlot.OFF_HAND) {
+            // Only process the off-hand if the main hand is empty.
+            ItemStack mainHandItem = event.getPlayer().getInventory().getItemInMainHand();
+            if (mainHandItem.getType() != Material.AIR) {
+                return false;
+            }
+        }
+
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return false;
 
         Block clickedBlock = event.getClickedBlock();
@@ -648,6 +655,19 @@ public class ItemDetector implements Listener {
             // Otherwise, break the crop.
             dataManager.removeCrop(loc);
             loc.getBlock().setType(Material.AIR);
+        }
+    }
+
+    @EventHandler
+    // Stops dry farmland from turning to dirt if not hydrated, mimicking vanilla behaviour.
+    public void onFarmlandDry(BlockFadeEvent event) {
+        // Check if the block that is about to fade is farmland.
+        if (event.getBlock().getType() == Material.FARMLAND) {
+            Location cropLocation = event.getBlock().getLocation().clone().add(0, 1, 0);
+            // If there's a custom crop registered at this location, cancel the drying.
+            if (dataManager.hasCrop(cropLocation)) {
+                event.setCancelled(true);
+            }
         }
     }
 
