@@ -519,6 +519,15 @@ public class ItemDetector implements Listener {
     public void onTreeBlockBreak(BlockBreakEvent event) {
         Location loc = event.getBlock().getLocation();
         if (dataManager.hasSapling(loc)) {
+            // Retrieve the custom sapling registered at this location.
+            CustomSapling sapling = dataManager.getSapling(loc);
+            // Prevent the default vanilla sapling drop.
+            event.setDropItems(false);
+            // Set the block to air (in case it hasn't been removed already).
+            event.getBlock().setType(Material.AIR);
+            // Drop the custom sapling item.
+            loc.getWorld().dropItemNaturally(loc, sapling.getSeedItem());
+            // Remove the sapling from the DataManager.
             dataManager.removeSapling(loc);
         }
     }
