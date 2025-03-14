@@ -3,10 +3,6 @@ package org.unitedlands.items.saplings;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.unitedlands.skills.skill.Skill;
-import org.unitedlands.skills.skill.SkillType;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Set;
 
@@ -22,10 +18,6 @@ public class AncientOak extends CustomSapling {
 
     @Override
     public void onPlant(Player player, Location location) {
-        Skill ancientOak = new Skill(player, SkillType.ANCIENT_OAK);
-        if (ancientOak.getLevel() == 0) {
-            player.sendActionBar(Component.text("You must unlock the Ancient Oak Planting skill!", NamedTextColor.RED));
-        }
     }
 
     @Override
