@@ -14,7 +14,7 @@ public class Lemon extends CustomSapling {
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
                 Material.PAPER, "trees:oak_leaves", "trees:lemon_leaves_fruited", false,
-                0.25, Set.of(    Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.SAVANNA, Biome.BIRCH_FOREST));
+                0.25, Set.of(Biome.SAVANNA, Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.JUNGLE, Biome.SPARSE_JUNGLE));
     }
 
     @Override
