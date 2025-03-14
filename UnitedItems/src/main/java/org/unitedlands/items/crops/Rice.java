@@ -3,6 +3,7 @@ package org.unitedlands.items.crops;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,7 +18,7 @@ public class Rice extends CustomCrop {
                 "rice_stage_4",
                 Set.of(Material.FARMLAND),
                 "rice_seeds",
-                Set.of(),
+                Set.of(Biome.PLAINS, Biome.SWAMP, Biome.JUNGLE, Biome.SPARSE_JUNGLE),
                 false
         );
     }

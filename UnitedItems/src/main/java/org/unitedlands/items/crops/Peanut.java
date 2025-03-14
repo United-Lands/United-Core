@@ -3,6 +3,7 @@ package org.unitedlands.items.crops;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,7 +18,7 @@ public class Peanut extends CustomCrop {
                 "peanut_stage_4",
                 Set.of(Material.FARMLAND),
                 "peanut",
-                Set.of(),
+                Set.of(Biome.PLAINS, Biome.SAVANNA, Biome.WINDSWEPT_SAVANNA, Biome.SAVANNA_PLATEAU),
                 false
         );
     }
