@@ -3,6 +3,7 @@ package org.unitedlands.items.crops;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,7 +18,7 @@ public class Tomato extends CustomCrop {
                 "tomato_stage_4",
                 Set.of(Material.FARMLAND),
                 "tomato_seeds",
-                Set.of(),
+                Set.of(Biome.PLAINS, Biome.FOREST, Biome.FLOWER_FOREST, Biome.BIRCH_FOREST, Biome.JUNGLE, Biome.SPARSE_JUNGLE),
                 true
         );
     }

@@ -3,6 +3,7 @@ package org.unitedlands.items.crops;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,9 +18,8 @@ public class Corn extends CustomCrop {
                 "corn_stage_4",
                 Set.of(Material.FARMLAND),
                 "corn_seeds",
-                Set.of(),
-                false
-        );
+                Set.of(Biome.PLAINS, Biome.FOREST, Biome.BIRCH_FOREST, Biome.FLOWER_FOREST, Biome.SAVANNA, Biome.SAVANNA_PLATEAU),
+                false);
     }
 
     @Override
