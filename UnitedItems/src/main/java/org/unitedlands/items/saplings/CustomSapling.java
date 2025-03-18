@@ -49,7 +49,7 @@ public abstract class CustomSapling {
     }
 
     public String getId() {
-        return id.toLowerCase();
+        return id;
     }
 
     public ItemStack getSeedItem() {
