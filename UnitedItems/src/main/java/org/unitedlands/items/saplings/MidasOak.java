@@ -9,7 +9,7 @@ import java.util.Set;
 public class MidasOak extends CustomSapling {
 
     public MidasOak() {
-        super("midas_oak_sapling",
+        super("midas_oak",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, "trees:midas_oak_log", false,
                 Material.PAPER, "trees:midas_oak_leaves", "trees:midas_oak_leaves_fruited", false,
