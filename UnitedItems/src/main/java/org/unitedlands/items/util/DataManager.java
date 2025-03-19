@@ -32,7 +32,7 @@ public class DataManager {
     // Load saplings from storage
     @SuppressWarnings("unchecked")
     public void loadSaplings(Map<String, CustomSapling> saplingSets) {
-        Map<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase(SAPLING_FILE, HashMap.class);
+        HashMap<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase("sapling.dat", HashMap.class);
         if (loadedSaplings == null || loadedSaplings.isEmpty()) {
             log("&aNo cached saplings found.");
             return;

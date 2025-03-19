@@ -1,20 +1,22 @@
 package org.unitedlands.items.tools;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BarkbinderAxe extends CustomTool {
+
+    public BarkbinderAxe(Plugin plugin) {
+    }
 
     private static final Map<Material, Material> STRIPPED_TO_UNSTRIPPED = new HashMap<>();
 
@@ -56,14 +58,6 @@ public class BarkbinderAxe extends CustomTool {
 
         Block block = event.getClickedBlock();
 
-        // Simulate a block break event to check for permissions.
-        BlockBreakEvent fakeBreakEvent = new BlockBreakEvent(block, player);
-        Bukkit.getPluginManager().callEvent(fakeBreakEvent);
-        if (fakeBreakEvent.isCancelled()) {
-            // The player doesn't have permission to break this block, cancel interaction.
-            return;
-        }
-
         ItemStack item = player.getInventory().getItemInMainHand();
 
         Material strippedMaterial = block.getType();
@@ -71,6 +65,7 @@ public class BarkbinderAxe extends CustomTool {
             return;
         }
 
+        // Check if the block is a stripped wood block.
         Material unstrippedMaterial = STRIPPED_TO_UNSTRIPPED.get(strippedMaterial);
         block.setType(unstrippedMaterial);
 
