@@ -137,7 +137,7 @@ public class ItemDetector implements Listener {
             }
         }
 
-        // No matching set found
+        // No matching set found.
         return null;
     }
 
