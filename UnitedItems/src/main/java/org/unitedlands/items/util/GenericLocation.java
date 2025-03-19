@@ -34,8 +34,7 @@ public class GenericLocation implements Serializable {
 	public Location getLocation() {
 		World world = Bukkit.getWorld(worldName);
 		if (world == null) {
-			Bukkit.getLogger().warning("[UnitedItems] World '" + worldName + "' is not loaded! Cannot restore sapling at: " + this);
-			return null;
+			return null; // World not loaded or doesn't exist.
 		}
 		return new Location(world, x, y, z);
 	}

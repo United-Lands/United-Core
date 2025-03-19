@@ -10,11 +10,11 @@ import java.util.Set;
 public class Lemon extends CustomSapling {
 
     public Lemon() {
-        super("lemon_sapling",
+        super("pear",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
                 Material.PAPER, "trees:oak_leaves", "trees:lemon_leaves_fruited", false,
-                0.25, Set.of(Biome.SAVANNA, Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.JUNGLE, Biome.SPARSE_JUNGLE));
+                0.25, Set.of(Biome.PLAINS, Biome.FOREST, Biome.SAVANNA));
     }
 
     @Override
