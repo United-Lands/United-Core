@@ -1,7 +1,0 @@
-name: UnitedItems
-version: '${project.version}'
-main: org.unitedlands.items.UnitedItems
-api-version: 1.17
-authors: [ Litning11 ]
-contributors: [ Maroon28 ]
-depend: [NBTAPI, Towny, ItemsAdder]
